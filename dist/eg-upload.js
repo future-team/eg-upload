@@ -118,9 +118,9 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _reactLibReactDOM2 = _interopRequireDefault(_reactLibReactDOM);
 
-	var _uploadLess = __webpack_require__(8);
+	var _cssUploadLess = __webpack_require__(8);
 
-	var _uploadLess2 = _interopRequireDefault(_uploadLess);
+	var _cssUploadLess2 = _interopRequireDefault(_cssUploadLess);
 
 	var Upload = (function (_Component) {
 	    _inherits(Upload, _Component);
@@ -166,6 +166,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	            maxNumber: 1000000,
 	            uploadBtnText: '选择上传文件',
 	            maxNumberMessage: '上传数量达到上限，最多允许上传',
+	            egSize: 'default',
+	            egStyle: '',
+	            width: '100%',
+	            height: '200px',
+	            thumbWidth: '200px',
+	            thumbHeight: '200px',
 	            completeCallback: function completeCallback() {},
 	            failureCallback: function failureCallback() {},
 	            filter: function filter(files, maxSize) {
@@ -199,6 +205,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	        this.toastId = this.uniqueId();
 	        this.imageSliderId = this.uniqueId();
 	        this.imgId = this.uniqueId();
+
+	        //此数据返回给调用者
+	        this.data = {};
 
 	        this.transform = 'scale(1, 1) rotate(0deg)';
 	        this.state = {
@@ -254,11 +263,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	            total = 1;
 	        }
 
-	        var loaded = (loaded / total * 100).toFixed(2) + '%';
+	        var loading = (loaded / total * 100).toFixed(2) + '%';
 
 	        var pross = this.state.progress;
 
-	        pross[file.index] = loaded;
+	        pross[file.index] = loading;
 	        this.setState({
 	            progress: pross
 	        });
@@ -267,9 +276,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	    //上传完成重置
 
 	    Upload.prototype.resetData = function resetData() {
-	        this.setState({
-	            progress: []
-	        });
 	        this.uploadFiles = null;
 	    };
 
@@ -291,11 +297,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	                        if (xhr.readyState == 4) {
 	                            if (xhr.status == 200) {
 	                                //成功回调
+	                                _this.data[file.name] = JSON.parse(xhr.responseText || '{}');
 	                                _this.execMethod('success', file, JSON.parse(xhr.responseText || '{}'));
 	                                //全部加载完成
 	                                if (i == fileList.length - 1) {
 	                                    _this.resetData();
-	                                    _this.props.completeCallback();
+	                                    _this.props.completeCallback(_this.data);
 	                                }
 	                            } else {
 	                                /* _this.fileList = _this.fileList.forEach((item)=>{
@@ -310,7 +317,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    };
 
 	                    xhr.open("POST", _this.props.uploadUrl, true);
-	                    xhr.setRequestHeader("X_FILENAME", file.name);
+	                    xhr.setRequestHeader('X_FILENAME', encodeURIComponent(file.name));
 	                    var f = new FormData();
 	                    f.append(file.name, file);
 	                    xhr.send(f);
@@ -329,9 +336,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	    };
 
 	    Upload.prototype.remove = function remove(index) {
+	        var _this = this;
 	        this.fileList = this.fileList.filter(function (item) {
+	            if (_this.data[item.name]) {
+	                _this.data[item.name] = null;
+	                delete _this.data[item.name];
+	            }
 	            return item.index != index;
 	        });
+
+	        _this.props.completeCallback(_this.data);
 	        this.select();
 	    };
 
@@ -360,16 +374,23 @@ return /******/ (function(modules) { // webpackBootstrap
 	            items.push(_react2['default'].createElement(
 	                'li',
 	                { key: file.index, onMouseEnter: (_context = _this.closeStatus).bind.call(_context, _this, 'block'), onMouseLeave: (_context = _this.closeStatus).bind.call(_context, _this, 'none') },
-	                _react2['default'].createElement('img', { src: file.result, alt: file.name, title: file.name, onClick: (_context = _this.showPic).bind.call(_context, _this, file) }),
+	                _react2['default'].createElement('img', { src: file.result, alt: file.name, title: file.name, onClick: (_context = _this.showPic).bind.call(_context, _this, file),
+	                    style: {
+	                        width: _this2.props.thumbWidth,
+	                        height: _this2.props.thumbHeight
+	                    }
+	                }),
 	                _react2['default'].createElement(
 	                    'div',
-	                    { className: 'text' },
+	                    { className: 'text', style: {
+	                            width: _this2.props.thumbWidth
+	                        } },
 	                    file.name
 	                ),
 	                _react2['default'].createElement(
 	                    'div',
 	                    { className: _classnames2['default']('progress', {
-	                            hide: progress ? progress.match(/\d*/) * 1 > 100 : false
+	                            hide: progress ? progress.match(/\d*/) * 1 >= 100 : false
 	                        }) },
 	                    _react2['default'].createElement(
 	                        'b',
@@ -473,7 +494,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                null,
 	                _react2['default'].createElement(
 	                    _eagleUi.Button,
-	                    null,
+	                    { egSize: this.props.egSize, egStyle: this.props.egStyle },
 	                    this.props.uploadBtnText,
 	                    _react2['default'].createElement('input', { type: 'file', onChange: this.getFiles.bind(this), multiple: true })
 	                )
@@ -485,7 +506,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    'ul',
 	                    { onDrop: this.getFiles.bind(this), onDragLeave: this.dragLeave.bind(this), onDragOver: this.dragOver.bind(this), className: _classnames2['default']({
 	                            'drag': this.state.isDrag
-	                        }, 'clearfix') },
+	                        }, 'clearfix'), style: {
+	                            width: this.props.width,
+	                            minHeight: this.props.height
+	                        } },
 	                    this.state.baseList.length > 0 ? this.renderItems(this.state.baseList) : ''
 	                )
 	            ),
@@ -506,7 +530,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    { style: {
 	                            overflow: 'hidden'
 	                        } },
-	                    _react2['default'].createElement('img', { ref: this.imgId, src: this.state.showFile.url, alt: '', style: { width: "100%", height: "auto", transform: this.transform } }),
+	                    _react2['default'].createElement('img', { ref: this.imgId, src: this.state.showFile.url, alt: '', style: { width: "100%", height: "auto", maxHeight: document.documentElement.clientHeight * 1 - 100 + 'px', transform: this.transform } }),
 	                    _react2['default'].createElement(
 	                        'div',
 	                        { className: 'icon-box' },
@@ -638,7 +662,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 	// module
-	exports.push([module.id, ".eg-upload button {\n  position: relative;\n}\n.eg-upload input[type=\"file\"] {\n  width: 100%;\n  position: absolute;\n  height: 100%;\n  left: 0;\n  top: 0;\n  opacity: 0;\n  cursor: pointer;\n}\n.eg-upload .item-list {\n  overflow: hidden;\n  position: relative;\n}\n.eg-upload ul {\n  width: 100%;\n  min-height: 200px;\n  margin-top: 5px;\n  border: 1px dashed #e2e2e2;\n  background: #fff;\n}\n.eg-upload ul li {\n  margin: 5px 5px;\n  float: left;\n  position: relative;\n}\n.eg-upload ul li i {\n  position: absolute;\n  width: 20px;\n  height: 20px;\n  -webkit-border-radius: 50%;\n  -moz-border-radius: 50%;\n  border-radius: 50%;\n  font-style: normal;\n  background: #ccc;\n  color: #fff;\n  text-align: center;\n  line-height: 20px;\n  top: -8px;\n  right: -8px;\n  cursor: pointer;\n  display: none;\n}\n.eg-upload ul li .text {\n  text-align: center;\n  overflow: hidden;\n  white-space: nowrap;\n  text-overflow: ellipsis;\n  width: 200px;\n}\n.eg-upload ul img {\n  width: 200px;\n  height: 200px;\n  cursor: pointer;\n}\n.eg-upload ul.drag {\n  border-color: #999;\n}\n.eg-upload ul .progress {\n  width: 100%;\n  height: 20px;\n  background: rgba(255, 255, 255, 0.8);\n  position: absolute;\n  top: 50%;\n  color: #fff;\n  font-size: 12px;\n  line-height: 20px;\n  margin-top: -10px;\n}\n.eg-upload ul .progress b {\n  text-align: right;\n  display: block;\n  width: 0;\n  height: 100%;\n  background: #db3a27;\n  border-color: #c73321 #b12d1e #8e2418;\n  background-image: -webkit-linear-gradient(top, #ea8a7e 0%, #e15a4a 70%, #db3a27 100%);\n  background-image: -moz-linear-gradient(top, #ea8a7e 0%, #e15a4a 70%, #db3a27 100%);\n  background-image: -o-linear-gradient(top, #ea8a7e 0%, #e15a4a 70%, #db3a27 100%);\n  background-image: linear-gradient(to bottom, #ea8a7e 0%, #e15a4a 70%, #db3a27 100%);\n  -webkit-box-shadow: inset 0 1px rgba(255, 255, 255, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2);\n  box-shadow: inset 0 1px rgba(255, 255, 255, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2);\n  -webkit-transition: all ease-in-out 0.4s;\n  -moz-transition: all ease-in-out 0.4s;\n  -ms-transition: all ease-in-out 0.4s;\n  -o-transition: all ease-in-out 0.4s;\n  transition: all ease-in-out 0.4s;\n}\n.upload-icon {\n  fill: #fff;\n  margin: 0 5px;\n  cursor: pointer;\n}\n.icon-box {\n  position: absolute;\n  bottom: 20px;\n  background: rgba(0, 0, 0, 0.7);\n  padding: 5px 10px;\n}\n", ""]);
+	exports.push([module.id, ".eg-upload button {\n  position: relative;\n}\n.eg-upload input[type=\"file\"] {\n  width: 100%;\n  position: absolute;\n  height: 100%;\n  left: 0;\n  top: 0;\n  opacity: 0;\n  cursor: pointer;\n}\n.eg-upload .item-list {\n  overflow: hidden;\n  position: relative;\n}\n.eg-upload ul {\n  width: 100%;\n  min-height: 200px;\n  margin-top: 5px;\n  border: 1px dashed #e2e2e2;\n  background: #fff;\n}\n.eg-upload ul li {\n  margin: 5px 5px;\n  float: left;\n  position: relative;\n}\n.eg-upload ul li i {\n  position: absolute;\n  width: 20px;\n  height: 20px;\n  -webkit-border-radius: 50%;\n  -moz-border-radius: 50%;\n  border-radius: 50%;\n  font-style: normal;\n  background: #ccc;\n  color: #fff;\n  text-align: center;\n  line-height: 20px;\n  top: -8px;\n  right: -8px;\n  cursor: pointer;\n  display: none;\n}\n.eg-upload ul li .text {\n  text-align: center;\n  overflow: hidden;\n  white-space: nowrap;\n  text-overflow: ellipsis;\n  width: 200px;\n}\n.eg-upload ul img {\n  width: 200px;\n  height: 200px;\n  cursor: pointer;\n}\n.eg-upload ul.drag {\n  border-color: #999;\n}\n.eg-upload ul .progress {\n  width: 100%;\n  height: 15px;\n  background: rgba(255, 255, 255, 0.8);\n  position: absolute;\n  top: 50%;\n  color: #fff;\n  font-size: 12px;\n  line-height: 15px;\n  margin-top: -7px;\n}\n.eg-upload ul .progress b {\n  text-align: right;\n  display: block;\n  width: 0;\n  height: 100%;\n  background-color: #eb6032;\n  background-image: -webkit-gradient(linear, left top, left bottom, from(#ee5511), to(#e86c54));\n  background-image: -webkit-linear-gradient(top, #ee5511, #e86c54);\n  background-image: -moz-linear-gradient(top, #ee5511, #e86c54);\n  background-image: -o-linear-gradient(top, #ee5511, #e86c54);\n  background-image: -ms-linear-gradient(top, #ee5511, #e86c54);\n  background-image: linear-gradient(top, #ee5511, #e86c54);\n  filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0, StartColorStr='#ee5511', EndColorStr='#e86c54');\n  -webkit-transition: all ease-in-out 0.4s;\n  -moz-transition: all ease-in-out 0.4s;\n  -ms-transition: all ease-in-out 0.4s;\n  -o-transition: all ease-in-out 0.4s;\n  transition: all ease-in-out 0.4s;\n}\n.upload-icon {\n  fill: #fff;\n  margin: 0 5px;\n  cursor: pointer;\n}\n.icon-box {\n  position: absolute;\n  bottom: 20px;\n  background: rgba(0, 0, 0, 0.7);\n  padding: 5px 10px;\n}\n", ""]);
 
 	// exports
 

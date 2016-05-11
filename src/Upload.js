@@ -8,7 +8,7 @@ import {Button,Dialog,Toast,Icon} from 'eagle-ui';
 import classnames from 'classnames';
 import ReactDom from 'react/lib/ReactDOM';
 
-import uploadStyle from './upload.less';
+import uploadStyle from '../css/upload.less';
 
 export default class Upload extends Component{
 
@@ -49,6 +49,12 @@ export default class Upload extends Component{
         maxNumber:1000000,
         uploadBtnText:'选择上传文件',
         maxNumberMessage:'上传数量达到上限，最多允许上传',
+        egSize:'default',
+        egStyle:'',
+        width:'100%',
+        height:'200px',
+        thumbWidth:'200px',
+        thumbHeight:'200px',
         completeCallback:()=>{},
         failureCallback:()=>{},
         filter:(files,maxSize)=>{
@@ -78,6 +84,9 @@ export default class Upload extends Component{
         this.toastId = this.uniqueId();
         this.imageSliderId = this.uniqueId();
         this.imgId = this.uniqueId();
+
+        //此数据返回给调用者
+        this.data = {};
 
         this.transform = 'scale(1, 1) rotate(0deg)';
         this.state={
@@ -132,11 +141,11 @@ export default class Upload extends Component{
             total=1;
         }
 
-        var loaded = (loaded / total * 100).toFixed(2) + '%';
+        var loading = (loaded / total * 100).toFixed(2) + '%';
 
         let pross = this.state.progress;
 
-        pross[file.index] =loaded;
+        pross[file.index] =loading;
         this.setState({
             progress:pross
         });
@@ -144,9 +153,6 @@ export default class Upload extends Component{
 
     //上传完成重置
     resetData(){
-        this.setState({
-            progress:[]
-        });
         this.uploadFiles = null;
     }
 
@@ -165,11 +171,12 @@ export default class Upload extends Component{
                         if(xhr.readyState == 4){
                             if(xhr.status == 200){
                                 //成功回调
+                                _this.data[file.name] = JSON.parse(xhr.responseText ||'{}');
                                 _this.execMethod('success',file,JSON.parse(xhr.responseText ||'{}') );
                                 //全部加载完成
                                 if(i ==(fileList.length-1) ){
                                     _this.resetData();
-                                    _this.props.completeCallback();
+                                    _this.props.completeCallback(_this.data);
                                 }
                             }else{
                                /* _this.fileList = _this.fileList.forEach((item)=>{
@@ -184,7 +191,7 @@ export default class Upload extends Component{
                     };
 
                     xhr.open("POST", _this.props.uploadUrl, true);
-                    xhr.setRequestHeader("X_FILENAME", file.name);
+                    xhr.setRequestHeader('X_FILENAME', encodeURIComponent(file.name));
                     let f = new FormData();
                     f.append(file.name, file);
                     xhr.send(f);
@@ -200,9 +207,16 @@ export default class Upload extends Component{
     }
 
     remove(index){
+        let _this = this;
         this.fileList = this.fileList.filter(function(item){
+            if(_this.data[item.name]){
+                _this.data[item.name] = null;
+                delete _this.data[item.name];
+            }
             return item.index!=index;
         });
+
+        _this.props.completeCallback(_this.data);
         this.select();
     }
 
@@ -224,11 +238,18 @@ export default class Upload extends Component{
             progress=this.state.progress[file.index];
             items.push(
                 <li key={file.index} onMouseEnter={::_this.closeStatus.bind(_this,'block')} onMouseLeave={::_this.closeStatus.bind(_this,'none')}>
-                    <img src={file.result} alt={file.name} title={file.name} onClick={::_this.showPic.bind(_this,file)} />
-                    <div className="text">{file.name}</div>
+                    <img src={file.result} alt={file.name} title={file.name} onClick={::_this.showPic.bind(_this,file)}
+                         style={{
+                            width:this.props.thumbWidth,
+                            height:this.props.thumbHeight
+                        }}
+                        />
+                    <div className="text" style={{
+                        width:this.props.thumbWidth
+                    }}>{file.name}</div>
                     <div className={
                         classnames('progress',{
-                            hide:progress ? progress.match(/\d*/)*1>100:false
+                            hide:progress ? progress.match(/\d*/)*1>=100:false
                         })
                     }><b style={{
                                 width:progress
@@ -322,7 +343,7 @@ export default class Upload extends Component{
                 )
                 }>
                 <div>
-                    <Button>{this.props.uploadBtnText}
+                    <Button egSize={this.props.egSize} egStyle={this.props.egStyle}>{this.props.uploadBtnText}
                         <input type="file" onChange={::this.getFiles} multiple />
                     </Button>
 
@@ -330,7 +351,10 @@ export default class Upload extends Component{
                 <div className="item-list">
                     <ul  onDrop={::this.getFiles} onDragLeave={::this.dragLeave} onDragOver={::this.dragOver} className={classnames({
                         'drag':this.state.isDrag
-                    },'clearfix')}>
+                    },'clearfix')} style={{
+                        width:this.props.width,
+                        minHeight:this.props.height
+                    }}>
                         {this.state.baseList.length > 0? this.renderItems(this.state.baseList):''}
                     </ul>
                 </div>
@@ -343,7 +367,7 @@ export default class Upload extends Component{
                     <div style={{
                         overflow:'hidden'
                     }}>
-                        <img ref={this.imgId} src={this.state.showFile.url}  alt="" style={{width:"100%",height:"auto",transform:this.transform }} />
+                        <img ref={this.imgId} src={this.state.showFile.url}  alt="" style={{width:"100%",height:"auto",maxHeight:(document.documentElement.clientHeight*1-100)+'px',transform:this.transform }} />
                         <div className="icon-box">
                             <Icon onClick={::this.cssEnhance.bind(this,'rotate')} className="upload-icon" name="radio_unchecked" alt="旋转"></Icon>
                             <Icon onClick={::this.cssEnhance.bind(this,'max')} className="upload-icon"  name="add" alt="放大"></Icon>
