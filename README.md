@@ -1,26 +1,30 @@
-# module-template
+# eg-upload
 
-这是一个模块组件开发的脚手架项目，用于快速搭建模块开发项目。
+上传组件
 
 ## 使用
 
-- 下载此项目至本地，修改项目名称和package.json里的信息；
-- git remote rm origin
-- git remote add origin {你的仓库地址}  例如：git remote add origin git@code.dianpingoa.com:pc-trade-f2e/apollo-template-static.git
-- git fetch
-- git pull origin master
+```js
 
-- 全局安装smartDoc 用于生成文档
+	import {Upload} from 'eg-upload';
+    import React, { Component ,PropTypes} from 'react';
+    import ReactDom from 'react/lib/ReactDOM';
+    
+    //completeCallback 全部上传完成
+    //successCallback  单张上传成功 会执行多次
+    //failureCallback  上传失败
+    ReactDom.render(
+        <Upload uploadUrl="http://172.24.121.17:8080/attachment/upload" maxNumber={5} successCallback={(file,data)=>{}} 
+          	completeCallback={()=>{}}
+			failureCallback={(file,data)=>{}}
+			filter={()=>{}}
+			uploadBtnText="选择上传文件"
+          />,
+        document.getElementById('root')
+    );
+
+```
 
 ## Command
-
-```
-	#测试	
-	npm run test	
-	#打包	
-	npm run build	
-	#例子演示	
-	npm run demo	
-```
 
 
