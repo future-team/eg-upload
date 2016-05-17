@@ -7,6 +7,7 @@ import Component from 'eagle-ui/lib/utils/Component';
 import {Button,Dialog,Toast,Icon} from 'eagle-ui';
 import classnames from 'classnames';
 import ReactDom from 'react/lib/ReactDOM';
+import {ImageView} from 'eg-imageview';
 
 import uploadStyle from '../css/upload.less';
 
@@ -83,7 +84,7 @@ export default class Upload extends Component{
 
         this.toastId = this.uniqueId();
         this.imageSliderId = this.uniqueId();
-        this.imgId = this.uniqueId();
+        //this.imgId = this.uniqueId();
 
         //此数据返回给调用者
         this.data = {};
@@ -94,7 +95,8 @@ export default class Upload extends Component{
             isDrag:false,
             progress:[],
             showFile:{
-                result:''
+                name:'',
+                url:''
             }
         };
     }
@@ -223,11 +225,11 @@ export default class Upload extends Component{
     showPic(file){
         this.setState({
             showFile:{
-                profile:file.name,
+                name:file.name,
                 url:file.result
             }
         });
-        this.transform = 'scale(1, 1) rotate(0deg)';
+        //this.transform = 'scale(1, 1) rotate(0deg)';
 
         Dialog.mask(this.imageSliderId);
     }
@@ -307,9 +309,9 @@ export default class Upload extends Component{
         //transform: scale(5.5, 5.5) rotate(270deg);
     }
 
-    cssEnhance(type){
+    /*cssEnhance(type){
 
-        let val = this.transform.match(/\d+\.?\d*/g);
+        let val = this.transform.match(/\d+\.?\d*!/g);
 
         let set=(zoom,rotate)=>{
             return `scale(${val[0]*1+zoom}, ${val[0]*1+zoom}) rotate(${val[2]*1+rotate}deg)`;
@@ -332,7 +334,7 @@ export default class Upload extends Component{
             this.transform = val;
             ReactDom.findDOMNode(this.refs[this.imgId]).style.transform = val;
         }
-    }
+    }*/
 
     render() {
         return (
@@ -363,19 +365,7 @@ export default class Upload extends Component{
                     <Toast type="error">{this.state.toastMessage}</Toast>
                 </Dialog>
 
-                <Dialog id={this.imageSliderId} isClose={true} isMask={true} title={this.state.showFile.profile ||''} egSize="lg">
-                    <div style={{
-                        overflow:'hidden'
-                    }}>
-                        <img ref={this.imgId} src={this.state.showFile.url}  alt="" style={{width:"100%",height:"auto",maxHeight:(document.documentElement.clientHeight*1-100)+'px',transform:this.transform }} />
-                        <div className="icon-box">
-                            <Icon onClick={::this.cssEnhance.bind(this,'rotate')} className="upload-icon" name="radio_unchecked" alt="旋转"></Icon>
-                            <Icon onClick={::this.cssEnhance.bind(this,'max')} className="upload-icon"  name="add" alt="放大"></Icon>
-                            <Icon  onClick={::this.cssEnhance.bind(this,'min')} className="upload-icon" name="remove" alt="缩小"></Icon>
-                        </div>
-                    </div>
-
-                </Dialog>
+                <ImageView id={this.imageSliderId} file={this.state.showFile} />
             </div>
         );
     }

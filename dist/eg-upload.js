@@ -118,7 +118,9 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _reactLibReactDOM2 = _interopRequireDefault(_reactLibReactDOM);
 
-	var _cssUploadLess = __webpack_require__(8);
+	var _egImageview = __webpack_require__(8);
+
+	var _cssUploadLess = __webpack_require__(14);
 
 	var _cssUploadLess2 = _interopRequireDefault(_cssUploadLess);
 
@@ -204,7 +206,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	        this.toastId = this.uniqueId();
 	        this.imageSliderId = this.uniqueId();
-	        this.imgId = this.uniqueId();
+	        //this.imgId = this.uniqueId();
 
 	        //此数据返回给调用者
 	        this.data = {};
@@ -215,7 +217,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	            isDrag: false,
 	            progress: [],
 	            showFile: {
-	                result: ''
+	                name: '',
+	                url: ''
 	            }
 	        };
 	    }
@@ -352,11 +355,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	    Upload.prototype.showPic = function showPic(file) {
 	        this.setState({
 	            showFile: {
-	                profile: file.name,
+	                name: file.name,
 	                url: file.result
 	            }
 	        });
-	        this.transform = 'scale(1, 1) rotate(0deg)';
+	        //this.transform = 'scale(1, 1) rotate(0deg)';
 
 	        _eagleUi.Dialog.mask(this.imageSliderId);
 	    };
@@ -456,36 +459,30 @@ return /******/ (function(modules) { // webpackBootstrap
 	        //transform: scale(5.5, 5.5) rotate(270deg);
 	    };
 
-	    Upload.prototype.cssEnhance = function cssEnhance(type) {
-
-	        var val = this.transform.match(/\d+\.?\d*/g);
-
-	        var set = function set(zoom, rotate) {
-	            return 'scale(' + (val[0] * 1 + zoom) + ', ' + (val[0] * 1 + zoom) + ') rotate(' + (val[2] * 1 + rotate) + 'deg)';
+	    /*cssEnhance(type){
+	         let val = this.transform.match(/\d+\.?\d*!/g);
+	         let set=(zoom,rotate)=>{
+	            return `scale(${val[0]*1+zoom}, ${val[0]*1+zoom}) rotate(${val[2]*1+rotate}deg)`;
 	        };
-
-	        if (val && val.length >= 3) {
-	            switch (type) {
+	         if(val && val.length>=3){
+	            switch (type){
 	                case 'rotate':
 	                    //val[2] = val[2]>=270?0
-	                    val = set(0, 90);
+	                    val =set(0,90);
 	                    break;
 	                case 'max':
-	                    val = set(0.5, 0);
+	                    val =set(0.5,0);
 	                    break;
 	                case 'min':
-	                    val = set(-0.5, 0);
+	                    val =set(-0.5,0);
 	                    break;
 	            }
-
-	            this.transform = val;
-	            _reactLibReactDOM2['default'].findDOMNode(this.refs[this.imgId]).style.transform = val;
+	             this.transform = val;
+	            ReactDom.findDOMNode(this.refs[this.imgId]).style.transform = val;
 	        }
-	    };
+	    }*/
 
 	    Upload.prototype.render = function render() {
-	        var _context2;
-
 	        return _react2['default'].createElement(
 	            'div',
 	            _extends({}, this.otherProps, { className: _classnames2['default'](this.getProperty(), this.props.className) }),
@@ -522,24 +519,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    this.state.toastMessage
 	                )
 	            ),
-	            _react2['default'].createElement(
-	                _eagleUi.Dialog,
-	                { id: this.imageSliderId, isClose: true, isMask: true, title: this.state.showFile.profile || '', egSize: 'lg' },
-	                _react2['default'].createElement(
-	                    'div',
-	                    { style: {
-	                            overflow: 'hidden'
-	                        } },
-	                    _react2['default'].createElement('img', { ref: this.imgId, src: this.state.showFile.url, alt: '', style: { width: "100%", height: "auto", maxHeight: document.documentElement.clientHeight * 1 - 100 + 'px', transform: this.transform } }),
-	                    _react2['default'].createElement(
-	                        'div',
-	                        { className: 'icon-box' },
-	                        _react2['default'].createElement(_eagleUi.Icon, { onClick: (_context2 = this.cssEnhance).bind.call(_context2, this, 'rotate'), className: 'upload-icon', name: 'radio_unchecked', alt: '旋转' }),
-	                        _react2['default'].createElement(_eagleUi.Icon, { onClick: (_context2 = this.cssEnhance).bind.call(_context2, this, 'max'), className: 'upload-icon', name: 'add', alt: '放大' }),
-	                        _react2['default'].createElement(_eagleUi.Icon, { onClick: (_context2 = this.cssEnhance).bind.call(_context2, this, 'min'), className: 'upload-icon', name: 'remove', alt: '缩小' })
-	                    )
-	                )
-	            )
+	            _react2['default'].createElement(_egImageview.ImageView, { id: this.imageSliderId, file: this.state.showFile })
 	        );
 	    };
 
@@ -631,20 +611,197 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 8 */
 /***/ function(module, exports, __webpack_require__) {
 
+	//export Table from './tables/Table.js';
+	'use strict';
+
+	exports.__esModule = true;
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+	var _ImageView2 = __webpack_require__(9);
+
+	var _ImageView3 = _interopRequireDefault(_ImageView2);
+
+	exports.ImageView = _ImageView3['default'];
+
+	if (window.Eagleui) {
+	    Eagleui.Upload = exports['ImageView'];
+	}
+
+/***/ },
+/* 9 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * Created by mac on 16/5/9.
+	 */
+
+	'use strict';
+
+	exports.__esModule = true;
+
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var _react = __webpack_require__(3);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _eagleUiLibUtilsComponent = __webpack_require__(4);
+
+	var _eagleUiLibUtilsComponent2 = _interopRequireDefault(_eagleUiLibUtilsComponent);
+
+	var _eagleUi = __webpack_require__(5);
+
+	var _classnames = __webpack_require__(6);
+
+	var _classnames2 = _interopRequireDefault(_classnames);
+
+	var _reactLibReactDOM = __webpack_require__(7);
+
+	var _reactLibReactDOM2 = _interopRequireDefault(_reactLibReactDOM);
+
+	var _cssImageviewLess = __webpack_require__(10);
+
+	var _cssImageviewLess2 = _interopRequireDefault(_cssImageviewLess);
+
+	var ImageView = (function (_Component) {
+	    _inherits(ImageView, _Component);
+
+	    _createClass(ImageView, null, [{
+	        key: 'propTypes',
+	        value: {
+	            /**
+	             * 样式前缀
+	             * @property classPrefix
+	             * @type String
+	             * @default btn
+	             * */
+	            classPrefix: _react.PropTypes.string,
+	            /**
+	             * 标签tagName
+	             * @property componentTag
+	             * @type String
+	             * @default a
+	             * */
+	            componentTag: _react.PropTypes.string
+	        },
+	        enumerable: true
+	    }, {
+	        key: 'defaultProps',
+	        value: {
+	            componentTag: 'div',
+	            file: {
+	                name: '',
+	                url: ''
+	            },
+	            id: ''
+	        },
+	        enumerable: true
+	    }]);
+
+	    function ImageView(props, context) {
+	        _classCallCheck(this, ImageView);
+
+	        _Component.call(this, props, context);
+
+	        //this.imageSliderId = this.uniqueId();
+	        this.imgId = this.uniqueId();
+	        this.transform = 'scale(1, 1) rotate(0deg)';
+	    }
+
+	    /*static show(){
+	        this.transform = 'scale(1, 1) rotate(0deg)';
+	         Dialog.mask(this.imageSliderId);
+	    }*/
+
+	    ImageView.prototype.cssEnhance = function cssEnhance(type) {
+
+	        var val = this.transform.match(/\d+\.?\d*/g);
+
+	        var set = function set(zoom, rotate) {
+	            return 'scale(' + (val[0] * 1 + zoom) + ', ' + (val[0] * 1 + zoom) + ') rotate(' + (val[2] * 1 + rotate) + 'deg)';
+	        };
+
+	        if (val && val.length >= 3) {
+	            switch (type) {
+	                case 'rotate':
+	                    //val[2] = val[2]>=270?0
+	                    val = set(0, 90);
+	                    break;
+	                case 'max':
+	                    val = set(0.5, 0);
+	                    break;
+	                case 'min':
+	                    val = set(-0.5, 0);
+	                    break;
+	            }
+
+	            this.transform = val;
+	            _reactLibReactDOM2['default'].findDOMNode(this.refs[this.imgId]).style.transform = val;
+	        }
+	    };
+
+	    ImageView.prototype.componentWillReceiveProps = function componentWillReceiveProps(nextProps) {
+	        this.transform = 'scale(1, 1) rotate(0deg)';
+	    };
+
+	    ImageView.prototype.render = function render() {
+	        var _context;
+
+	        var file = this.props.file;
+
+	        return _react2['default'].createElement(
+	            _eagleUi.Dialog,
+	            _extends({ id: this.props.id, isClose: true, isMask: true, title: file.name || '', egSize: 'lg' }, this.props),
+	            _react2['default'].createElement(
+	                'div',
+	                { style: {
+	                        overflow: 'hidden'
+	                    } },
+	                _react2['default'].createElement('img', { ref: this.imgId, src: file.url, alt: '', style: { width: "100%", height: "auto", maxHeight: document.documentElement.clientHeight * 1 - 100 + 'px', transform: this.transform } }),
+	                _react2['default'].createElement(
+	                    'div',
+	                    { className: 'icon-box' },
+	                    _react2['default'].createElement(_eagleUi.Icon, { onClick: (_context = this.cssEnhance).bind.call(_context, this, 'rotate'), className: 'upload-icon', name: 'radio_unchecked', alt: '旋转' }),
+	                    _react2['default'].createElement(_eagleUi.Icon, { onClick: (_context = this.cssEnhance).bind.call(_context, this, 'max'), className: 'upload-icon', name: 'add', alt: '放大' }),
+	                    _react2['default'].createElement(_eagleUi.Icon, { onClick: (_context = this.cssEnhance).bind.call(_context, this, 'min'), className: 'upload-icon', name: 'remove', alt: '缩小' })
+	                )
+	            )
+	        );
+	    };
+
+	    return ImageView;
+	})(_eagleUiLibUtilsComponent2['default']);
+
+	exports['default'] = ImageView;
+	module.exports = exports['default'];
+
+/***/ },
+/* 10 */
+/***/ function(module, exports, __webpack_require__) {
+
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(9);
+	var content = __webpack_require__(11);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
-	var update = __webpack_require__(11)(content, {});
+	var update = __webpack_require__(13)(content, {});
 	if(content.locals) module.exports = content.locals;
 	// Hot Module Replacement
 	if(false) {
 		// When the styles change, update the <style> tags
 		if(!content.locals) {
-			module.hot.accept("!!./../node_modules/css-loader/index.js!./../node_modules/less-loader/index.js!./upload.less", function() {
-				var newContent = require("!!./../node_modules/css-loader/index.js!./../node_modules/less-loader/index.js!./upload.less");
+			module.hot.accept("!!./../../css-loader/index.js!./../../less-loader/index.js!./imageview.less", function() {
+				var newContent = require("!!./../../css-loader/index.js!./../../less-loader/index.js!./imageview.less");
 				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
 				update(newContent);
 			});
@@ -654,21 +811,21 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 
 /***/ },
-/* 9 */
+/* 11 */
 /***/ function(module, exports, __webpack_require__) {
 
-	exports = module.exports = __webpack_require__(10)();
+	exports = module.exports = __webpack_require__(12)();
 	// imports
 
 
 	// module
-	exports.push([module.id, ".eg-upload button {\n  position: relative;\n}\n.eg-upload input[type=\"file\"] {\n  width: 100%;\n  position: absolute;\n  height: 100%;\n  left: 0;\n  top: 0;\n  opacity: 0;\n  cursor: pointer;\n}\n.eg-upload .item-list {\n  overflow: hidden;\n  position: relative;\n}\n.eg-upload ul {\n  width: 100%;\n  min-height: 200px;\n  margin-top: 5px;\n  border: 1px dashed #e2e2e2;\n  background: #fff;\n}\n.eg-upload ul li {\n  margin: 5px 5px;\n  float: left;\n  position: relative;\n}\n.eg-upload ul li i {\n  position: absolute;\n  width: 20px;\n  height: 20px;\n  -webkit-border-radius: 50%;\n  -moz-border-radius: 50%;\n  border-radius: 50%;\n  font-style: normal;\n  background: #ccc;\n  color: #fff;\n  text-align: center;\n  line-height: 20px;\n  top: -8px;\n  right: -8px;\n  cursor: pointer;\n  display: none;\n}\n.eg-upload ul li .text {\n  text-align: center;\n  overflow: hidden;\n  white-space: nowrap;\n  text-overflow: ellipsis;\n  width: 200px;\n}\n.eg-upload ul img {\n  width: 200px;\n  height: 200px;\n  cursor: pointer;\n}\n.eg-upload ul.drag {\n  border-color: #999;\n}\n.eg-upload ul .progress {\n  width: 100%;\n  height: 15px;\n  background: rgba(255, 255, 255, 0.8);\n  position: absolute;\n  top: 50%;\n  color: #fff;\n  font-size: 12px;\n  line-height: 15px;\n  margin-top: -7px;\n}\n.eg-upload ul .progress b {\n  text-align: right;\n  display: block;\n  width: 0;\n  height: 100%;\n  background-color: #eb6032;\n  background-image: -webkit-gradient(linear, left top, left bottom, from(#ee5511), to(#e86c54));\n  background-image: -webkit-linear-gradient(top, #ee5511, #e86c54);\n  background-image: -moz-linear-gradient(top, #ee5511, #e86c54);\n  background-image: -o-linear-gradient(top, #ee5511, #e86c54);\n  background-image: -ms-linear-gradient(top, #ee5511, #e86c54);\n  background-image: linear-gradient(top, #ee5511, #e86c54);\n  filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0, StartColorStr='#ee5511', EndColorStr='#e86c54');\n  -webkit-transition: all ease-in-out 0.4s;\n  -moz-transition: all ease-in-out 0.4s;\n  -ms-transition: all ease-in-out 0.4s;\n  -o-transition: all ease-in-out 0.4s;\n  transition: all ease-in-out 0.4s;\n}\n.upload-icon {\n  fill: #fff;\n  margin: 0 5px;\n  cursor: pointer;\n}\n.icon-box {\n  position: absolute;\n  bottom: 20px;\n  background: rgba(0, 0, 0, 0.7);\n  padding: 5px 10px;\n}\n", ""]);
+	exports.push([module.id, ".upload-icon {\n  fill: #fff;\n  margin: 0 5px;\n  cursor: pointer;\n}\n.icon-box {\n  position: absolute;\n  bottom: 20px;\n  background: rgba(0, 0, 0, 0.7);\n  padding: 5px 10px;\n}\n", ""]);
 
 	// exports
 
 
 /***/ },
-/* 10 */
+/* 12 */
 /***/ function(module, exports) {
 
 	/*
@@ -724,7 +881,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 11 */
+/* 13 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*
@@ -946,6 +1103,46 @@ return /******/ (function(modules) { // webpackBootstrap
 		if(oldSrc)
 			URL.revokeObjectURL(oldSrc);
 	}
+
+
+/***/ },
+/* 14 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// style-loader: Adds some css to the DOM by adding a <style> tag
+
+	// load the styles
+	var content = __webpack_require__(15);
+	if(typeof content === 'string') content = [[module.id, content, '']];
+	// add the styles to the DOM
+	var update = __webpack_require__(13)(content, {});
+	if(content.locals) module.exports = content.locals;
+	// Hot Module Replacement
+	if(false) {
+		// When the styles change, update the <style> tags
+		if(!content.locals) {
+			module.hot.accept("!!./../node_modules/css-loader/index.js!./../node_modules/less-loader/index.js!./upload.less", function() {
+				var newContent = require("!!./../node_modules/css-loader/index.js!./../node_modules/less-loader/index.js!./upload.less");
+				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+				update(newContent);
+			});
+		}
+		// When the module is disposed, remove the <style> tags
+		module.hot.dispose(function() { update(); });
+	}
+
+/***/ },
+/* 15 */
+/***/ function(module, exports, __webpack_require__) {
+
+	exports = module.exports = __webpack_require__(12)();
+	// imports
+
+
+	// module
+	exports.push([module.id, ".eg-upload button {\n  position: relative;\n}\n.eg-upload input[type=\"file\"] {\n  width: 100%;\n  position: absolute;\n  height: 100%;\n  left: 0;\n  top: 0;\n  opacity: 0;\n  cursor: pointer;\n}\n.eg-upload .item-list {\n  overflow: hidden;\n  position: relative;\n}\n.eg-upload ul {\n  width: 100%;\n  min-height: 200px;\n  margin-top: 5px;\n  border: 1px dashed #e2e2e2;\n  background: #fff;\n}\n.eg-upload ul li {\n  margin: 5px 5px;\n  float: left;\n  position: relative;\n}\n.eg-upload ul li i {\n  position: absolute;\n  width: 20px;\n  height: 20px;\n  -webkit-border-radius: 50%;\n  -moz-border-radius: 50%;\n  border-radius: 50%;\n  font-style: normal;\n  background: #ccc;\n  color: #fff;\n  text-align: center;\n  line-height: 20px;\n  top: -8px;\n  right: -8px;\n  cursor: pointer;\n  display: none;\n}\n.eg-upload ul li .text {\n  text-align: center;\n  overflow: hidden;\n  white-space: nowrap;\n  text-overflow: ellipsis;\n  width: 200px;\n}\n.eg-upload ul img {\n  width: 200px;\n  height: 200px;\n  cursor: pointer;\n}\n.eg-upload ul.drag {\n  border-color: #999;\n}\n.eg-upload ul .progress {\n  width: 100%;\n  height: 15px;\n  background: rgba(255, 255, 255, 0.8);\n  position: absolute;\n  top: 50%;\n  color: #fff;\n  font-size: 12px;\n  line-height: 15px;\n  margin-top: -7px;\n}\n.eg-upload ul .progress b {\n  text-align: right;\n  display: block;\n  width: 0;\n  height: 100%;\n  background-color: #eb6032;\n  background-image: -webkit-gradient(linear, left top, left bottom, from(#ee5511), to(#e86c54));\n  background-image: -webkit-linear-gradient(top, #ee5511, #e86c54);\n  background-image: -moz-linear-gradient(top, #ee5511, #e86c54);\n  background-image: -o-linear-gradient(top, #ee5511, #e86c54);\n  background-image: -ms-linear-gradient(top, #ee5511, #e86c54);\n  background-image: linear-gradient(top, #ee5511, #e86c54);\n  filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0, StartColorStr='#ee5511', EndColorStr='#e86c54');\n  -webkit-transition: all ease-in-out 0.4s;\n  -moz-transition: all ease-in-out 0.4s;\n  -ms-transition: all ease-in-out 0.4s;\n  -o-transition: all ease-in-out 0.4s;\n  transition: all ease-in-out 0.4s;\n}\n", ""]);
+
+	// exports
 
 
 /***/ }
