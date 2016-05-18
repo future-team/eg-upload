@@ -58,6 +58,8 @@ export default class Upload extends Component{
         thumbHeight:'200px',
         completeCallback:()=>{},
         failureCallback:()=>{},
+        uploadedCallback:()=>{},
+        successCallback:()=>{return true},
         filter:(files,maxSize)=>{
             var arrFiles = [];
             for (var i = 0, file; file = files[i]; i++) {
@@ -88,6 +90,9 @@ export default class Upload extends Component{
 
         //此数据返回给调用者
         this.data = {};
+
+        this.isRender = true;
+        this.timeout = null;
 
         this.transform = 'scale(1, 1) rotate(0deg)';
         this.state={
@@ -158,8 +163,33 @@ export default class Upload extends Component{
         this.uploadFiles = null;
     }
 
+    rollback(file,xhr){
+        let _this = this;
+        _this.fileList = _this.fileList.forEach((item)=>{
+            return item.name !=file.name;
+        });
+        if(typeof(this.fileList =='undefined') ){
+            this.fileList = [];
+        }
+
+        clearInterval(_this.timeout);
+        this.timeout = setInterval(function(){
+            if(typeof(_this.isRender)!='undefined' &&_this.isRender ){
+                _this.select(_this.fileList);
+            }else{
+                clearInterval(_this.timeout);
+            }
+
+        },1000);
+        //失败回调
+        _this.resetData();
+        _this.props.failureCallback(file,xhr.responseText );
+    }
+
     upload(fileList = this.uploadFiles){
         let _this = this;
+
+        _this.props.uploadedCallback(this.fileList,fileList );
         for(let i=0,file=null;file=fileList[i];i++ ){
 
             ((file)=>{
@@ -173,21 +203,22 @@ export default class Upload extends Component{
                         if(xhr.readyState == 4){
                             if(xhr.status == 200){
                                 //成功回调
-                                _this.data[file.name] = JSON.parse(xhr.responseText ||'{}');
-                                _this.execMethod('success',file,JSON.parse(xhr.responseText ||'{}') );
+                                var isUpload = this.props.successCallback(file,JSON.parse(xhr.responseText ||'{}') );
+                                //_this.execMethod('success',file,JSON.parse(xhr.responseText ||'{}') );
+
+                                if(typeof(isUpload)=='boolean'&& !isUpload){
+                                    _this.rollback(file,xhr);
+                                }else{
+                                    _this.data[file.name] = JSON.parse(xhr.responseText ||'{}');
+                                }
+
                                 //全部加载完成
                                 if(i ==(fileList.length-1) ){
                                     _this.resetData();
                                     _this.props.completeCallback(_this.data);
                                 }
                             }else{
-                               /* _this.fileList = _this.fileList.forEach((item)=>{
-                                    return item.name !=file.name;
-                                });
-                               _this.select();*/
-                                //失败回调
-                                _this.resetData();
-                                _this.props.failureCallback(file,JSON.parse(xhr.responseText|| '{}') );
+                               _this.rollback(file,xhr);
                             }
                         }
                     };
@@ -229,7 +260,6 @@ export default class Upload extends Component{
                 url:file.result
             }
         });
-        //this.transform = 'scale(1, 1) rotate(0deg)';
 
         Dialog.mask(this.imageSliderId);
     }
@@ -272,7 +302,7 @@ export default class Upload extends Component{
             file= files[i];
             if(file){
                 var reader = new FileReader();
-
+                _this.isRender = false;
                 reader.onload = function(e) {
                     items.push(
                         {
@@ -288,6 +318,7 @@ export default class Upload extends Component{
 
 
             }else{
+                _this.isRender = true;
                 _this.setState({
                     baseList:items
                 });
@@ -306,36 +337,7 @@ export default class Upload extends Component{
         this.setState({
             isDrag:true
         });
-        //transform: scale(5.5, 5.5) rotate(270deg);
     }
-
-    /*cssEnhance(type){
-
-        let val = this.transform.match(/\d+\.?\d*!/g);
-
-        let set=(zoom,rotate)=>{
-            return `scale(${val[0]*1+zoom}, ${val[0]*1+zoom}) rotate(${val[2]*1+rotate}deg)`;
-        };
-
-        if(val && val.length>=3){
-            switch (type){
-                case 'rotate':
-                    //val[2] = val[2]>=270?0
-                    val =set(0,90);
-                    break;
-                case 'max':
-                    val =set(0.5,0);
-                    break;
-                case 'min':
-                    val =set(-0.5,0);
-                    break;
-            }
-
-            this.transform = val;
-            ReactDom.findDOMNode(this.refs[this.imgId]).style.transform = val;
-        }
-    }*/
-
     render() {
         return (
             <div {...this.otherProps} className={

@@ -1,6 +1,6 @@
 {
   "name": "eg-upload",
-  "version": "0.2.4",
+  "version": "1.0.6",
   "description": "上传文件组件",
   "main": "lib/",
   "repository": "git@github.com:future-team/eg-upload.git",
