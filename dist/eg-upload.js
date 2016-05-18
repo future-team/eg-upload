@@ -218,6 +218,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	        this.isRender = true;
 	        this.timeout = null;
 
+	        this.target = null;
+
 	        this.transform = 'scale(1, 1) rotate(0deg)';
 	        this.state = {
 	            baseList: [],
@@ -238,6 +240,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	        var files = e.target.files || e.dataTransfer.files;
 
 	        var len = files.length + this.fileList.length;
+
+	        this.target = e.target;
 
 	        if (len > this.props.maxNumber) {
 	            this.setState({
@@ -297,6 +301,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	        if (typeof (this.fileList == 'undefined')) {
 	            this.fileList = [];
 	        }
+
+	        this.target && (this.target.value = '');
 
 	        clearInterval(_this.timeout);
 	        this.timeout = setInterval(function () {
