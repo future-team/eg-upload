@@ -188,12 +188,13 @@ export default class Upload extends Component{
 
         },1000);
         //失败回调
-        _this.resetData();
+        //_this.resetData();
         _this.props.failureCallback(file,xhr.responseText );
     }
 
     upload(fileList = this.uploadFiles){
-        let _this = this;
+        let _this = this,
+            success = 0;
 
         _this.props.uploadedCallback(this.fileList,fileList );
         for(let i=0,file=null;file=fileList[i];i++ ){
@@ -218,10 +219,11 @@ export default class Upload extends Component{
                                     _this.data[file.name] = JSON.parse(xhr.responseText ||'{}');
                                 }
 
+                                success+=1;
                                 //全部加载完成
-                                if(i ==(fileList.length-1) ){
+                                if(success ==fileList.length ){
                                     _this.resetData();
-                                    _this.props.completeCallback(_this.data);
+                                    _this.props.completeCallback(_this.data,_this.fileList && _this.fileList.length ?_this.fileList.length :0 );
                                 }
                             }else{
                                _this.rollback(file,xhr);
@@ -248,14 +250,26 @@ export default class Upload extends Component{
     remove(index){
         let _this = this;
         this.fileList = this.fileList.filter(function(item){
-            if(_this.data[item.name]){
+            if(_this.data[item.name] && item.index==index){
                 _this.data[item.name] = null;
                 delete _this.data[item.name];
             }
             return item.index!=index;
         });
 
-        _this.props.completeCallback(_this.data);
+        /*let data = {},_data = this.data,singleData = null;
+        for(var item in _data){
+            singleData = _data[item];
+            if(singleData){
+                data[item] = singleData;
+            }
+        }
+        this.data = data;*/
+        let len = 0;
+        if(this.fileList && this.fileList.length){
+            len = this.fileList.length;
+        }
+        _this.props.completeCallback(_this.data,len);
         this.select();
     }
 
