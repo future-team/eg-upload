@@ -98,8 +98,6 @@ export default class Upload extends Component{
         this.target = null;
 
         this.imageFilter = /^(image\/bmp|image\/gif|image\/jpeg|image\/png|image\/tiff)$/i;
-
-        this.transform = 'scale(1, 1) rotate(0deg)';
         this.state={
             baseList:[],
             isDrag:false,
@@ -412,7 +410,7 @@ export default class Upload extends Component{
                         width:this.props.width,
                         minHeight:this.props.height
                     }}>
-                        {this.state.baseList.length > 0? (this.props.renderCallback ?this.props.renderItemCallback.bind(this,this.state.baseList) : this.renderItems(this.state.baseList) ):''}
+                        {this.state.baseList.length > 0? (this.props.renderItemCallback ?this.props.renderItemCallback.bind(this,this.state.baseList) : this.renderItems(this.state.baseList) ):''}
                     </ul>
                 </div>
 

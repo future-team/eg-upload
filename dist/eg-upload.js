@@ -180,6 +180,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            successCallback: function successCallback() {
 	                return true;
 	            },
+	            renderItemCallback: null,
 	            filter: function filter(files, maxSize) {
 	                var arrFiles = [];
 	                for (var i = 0, file; file = files[i]; i++) {
@@ -220,7 +221,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	        this.target = null;
 
-	        this.transform = 'scale(1, 1) rotate(0deg)';
+	        this.imageFilter = /^(image\/bmp|image\/gif|image\/jpeg|image\/png|image\/tiff)$/i;
 	        this.state = {
 	            baseList: [],
 	            isDrag: false,
@@ -371,8 +372,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	    };
 
 	    Upload.prototype.closeStatus = function closeStatus(val, e) {
-	        var i = e.target.parentNode.querySelector('i');
-	        i.style.display = val;
+	        var parent = e.target;
+
+	        while (parent.nodeName.toLowerCase() != 'li') {
+	            parent = parent.parentNode;
+	        }
+	        parent.querySelector('i').style.display = val;
 	    };
 
 	    Upload.prototype.remove = function remove(index) {
@@ -425,16 +430,28 @@ return /******/ (function(modules) { // webpackBootstrap
 	            items.push(_react2['default'].createElement(
 	                'li',
 	                { key: file.index, onMouseEnter: (_context = _this.closeStatus).bind.call(_context, _this, 'block'), onMouseLeave: (_context = _this.closeStatus).bind.call(_context, _this, 'none') },
-	                _react2['default'].createElement('img', { src: file.result, alt: file.name, title: file.name, onClick: (_context = _this.showPic).bind.call(_context, _this, file),
-	                    style: {
-	                        width: _this3.props.thumbWidth,
-	                        height: _this3.props.thumbHeight
-	                    }
-	                }),
-	                _react2['default'].createElement(
+	                _this.imageFilter.test(file.type) ? _react2['default'].createElement(
+	                    'div',
+	                    null,
+	                    _react2['default'].createElement('img', { src: file.result, alt: file.name, title: file.name, onClick: (_context = _this.showPic).bind.call(_context, _this, file),
+	                        style: {
+	                            width: _this3.props.thumbWidth,
+	                            height: _this3.props.thumbHeight
+	                        }
+	                    }),
+	                    _react2['default'].createElement(
+	                        'div',
+	                        { className: 'text', style: {
+	                                width: _this3.props.thumbWidth
+	                            } },
+	                        file.name
+	                    )
+	                ) : _react2['default'].createElement(
 	                    'div',
 	                    { className: 'text', style: {
-	                            width: _this3.props.thumbWidth
+	                            width: _this3.props.thumbWidth,
+	                            height: _this3.props.thumbHeight,
+	                            lineHeight: _this3.props.thumbHeight
 	                        } },
 	                    file.name
 	                ),
@@ -472,18 +489,31 @@ return /******/ (function(modules) { // webpackBootstrap
 	        var render = function render() {
 	            file = files[i];
 	            if (file) {
-	                var reader = new FileReader();
 	                _this.isRender = false;
-	                reader.onload = function (e) {
+	                if (_this.imageFilter.test(file.type)) {
+
+	                    var reader = new FileReader();
+	                    reader.onload = function (e) {
+	                        items.push({
+	                            index: file.index,
+	                            name: file.name,
+	                            result: e.target.result,
+	                            type: file.type
+	                        });
+	                        i++;
+	                        render();
+	                    };
+	                    reader.readAsDataURL(file);
+	                } else {
 	                    items.push({
 	                        index: file.index,
 	                        name: file.name,
-	                        result: e.target.result
+	                        result: '',
+	                        type: file.type
 	                    });
 	                    i++;
 	                    render();
-	                };
-	                reader.readAsDataURL(file);
+	                }
 	            } else {
 	                _this.isRender = true;
 	                _this.setState({
@@ -491,6 +521,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                });
 	            }
 	        };
+
 	        render();
 	        //return items;
 	    };
@@ -532,7 +563,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                            width: this.props.width,
 	                            minHeight: this.props.height
 	                        } },
-	                    this.state.baseList.length > 0 ? this.renderItems(this.state.baseList) : ''
+	                    this.state.baseList.length > 0 ? this.props.renderItemCallback ? this.props.renderItemCallback.bind(this, this.state.baseList) : this.renderItems(this.state.baseList) : ''
 	                )
 	            ),
 	            _react2['default'].createElement(
