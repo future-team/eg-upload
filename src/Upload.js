@@ -60,6 +60,7 @@ export default class Upload extends Component{
         failureCallback:()=>{},
         uploadedCallback:()=>{},
         successCallback:()=>{return true},
+        renderItemCallback:null,
         filter:(files,maxSize)=>{
             var arrFiles = [];
             for (var i = 0, file; file = files[i]; i++) {
@@ -95,6 +96,8 @@ export default class Upload extends Component{
         this.timeout = null;
 
         this.target = null;
+
+        this.imageFilter = /^(image\/bmp|image\/gif|image\/jpeg|image\/png|image\/tiff)$/i;
 
         this.transform = 'scale(1, 1) rotate(0deg)';
         this.state={
@@ -242,8 +245,12 @@ export default class Upload extends Component{
     }
 
     closeStatus(val,e){
-        let i = e.target.parentNode.querySelector('i');
-        i.style.display=val;
+        let parent = e.target;
+
+        while(parent.nodeName.toLowerCase() !='li'){
+            parent = parent.parentNode;
+        }
+        parent.querySelector('i').style.display=val;
 
     }
 
@@ -290,15 +297,26 @@ export default class Upload extends Component{
             progress=this.state.progress[file.index];
             items.push(
                 <li key={file.index} onMouseEnter={::_this.closeStatus.bind(_this,'block')} onMouseLeave={::_this.closeStatus.bind(_this,'none')}>
-                    <img src={file.result} alt={file.name} title={file.name} onClick={::_this.showPic.bind(_this,file)}
-                         style={{
-                            width:this.props.thumbWidth,
-                            height:this.props.thumbHeight
-                        }}
-                        />
-                    <div className="text" style={{
-                        width:this.props.thumbWidth
-                    }}>{file.name}</div>
+
+                    {
+                        _this.imageFilter.test(file.type) ?
+                            (<div>
+                                <img src={file.result} alt={file.name} title={file.name} onClick={::_this.showPic.bind(_this,file)}
+                                    style={{
+                                        width:this.props.thumbWidth,
+                                        height:this.props.thumbHeight
+                                    }}
+                                />
+                                <div className="text" style={{
+                                    width:this.props.thumbWidth
+                                }}>{file.name}</div>
+                            </div>):
+                            <div className="text"  style={{
+                                        width:this.props.thumbWidth,
+                                        height:this.props.thumbHeight,
+                                        lineHeight:this.props.thumbHeight
+                                    }}>{file.name}</div>
+                    }
                     <div className={
                         classnames('progress',{
                             hide:progress ? progress.match(/\d*/)*1>=100:false
@@ -321,21 +339,35 @@ export default class Upload extends Component{
         let render = ()=>{
             file= files[i];
             if(file){
-                var reader = new FileReader();
                 _this.isRender = false;
-                reader.onload = function(e) {
+                if(_this.imageFilter.test(file.type) ){
+
+                    var reader = new FileReader();
+                    reader.onload = function(e) {
+                        items.push(
+                            {
+                                index:file.index,
+                                name:file.name,
+                                result:e.target.result,
+                                type:file.type
+                            }
+                        );
+                        i++;
+                        render();
+                    };
+                    reader.readAsDataURL( file );
+                }else{
                     items.push(
                         {
                             index:file.index,
                             name:file.name,
-                            result:e.target.result
+                            result:'',
+                            type:file.type
                         }
                     );
                     i++;
                     render();
-                };
-                reader.readAsDataURL( file );
-
+                }
 
             }else{
                 _this.isRender = true;
@@ -344,6 +376,7 @@ export default class Upload extends Component{
                 });
             }
         };
+
         render();
         //return items;
     }
@@ -379,7 +412,7 @@ export default class Upload extends Component{
                         width:this.props.width,
                         minHeight:this.props.height
                     }}>
-                        {this.state.baseList.length > 0? this.renderItems(this.state.baseList):''}
+                        {this.state.baseList.length > 0? (this.props.renderCallback ?this.props.renderItemCallback.bind(this,this.state.baseList) : this.renderItems(this.state.baseList) ):''}
                     </ul>
                 </div>
 
