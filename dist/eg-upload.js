@@ -184,15 +184,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	            filter: function filter(files, maxSize) {
 	                var arrFiles = [];
 	                for (var i = 0, file; file = files[i]; i++) {
-	                    if (file.type.indexOf("image") == 0) {
+	                    arrFiles.push(file);
+	                    /*if (file.type.indexOf("image") == 0) {
 	                        if (file.size >= maxSize) {
-	                            alert('您这张' + file.name + '图片大小过大，应小于' + maxSize + 'k');
+	                            alert(`您这张${file.name}图片大小过大，应小于${maxSize}k`);
 	                        } else {
 	                            arrFiles.push(file);
 	                        }
 	                    } else {
 	                        alert('文件"' + file.name + '"不是图片。');
-	                    }
+	                    }*/
 	                }
 	                return arrFiles;
 	            }
@@ -452,7 +453,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                            width: _this3.props.thumbWidth,
 	                            height: _this3.props.thumbHeight,
 	                            lineHeight: _this3.props.thumbHeight
-	                        } },
+	                        }, title: file.name },
 	                    file.name
 	                ),
 	                _react2['default'].createElement(

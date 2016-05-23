@@ -64,7 +64,8 @@ export default class Upload extends Component{
         filter:(files,maxSize)=>{
             var arrFiles = [];
             for (var i = 0, file; file = files[i]; i++) {
-                if (file.type.indexOf("image") == 0) {
+                arrFiles.push(file);
+                /*if (file.type.indexOf("image") == 0) {
                     if (file.size >= maxSize) {
                         alert(`您这张${file.name}图片大小过大，应小于${maxSize}k`);
                     } else {
@@ -72,7 +73,7 @@ export default class Upload extends Component{
                     }
                 } else {
                     alert('文件"' + file.name + '"不是图片。');
-                }
+                }*/
             }
             return arrFiles;
         }
@@ -227,7 +228,7 @@ export default class Upload extends Component{
                                     _this.props.completeCallback(_this.data,_this.fileList && _this.fileList.length ?_this.fileList.length :0 );
                                 }
                             }else{
-                               _this.rollback(file,xhr);
+                                _this.rollback(file,xhr);
                             }
                         }
                     };
@@ -313,7 +314,7 @@ export default class Upload extends Component{
                                         width:this.props.thumbWidth,
                                         height:this.props.thumbHeight,
                                         lineHeight:this.props.thumbHeight
-                                    }}>{file.name}</div>
+                                    }} title={file.name}>{file.name}</div>
                     }
                     <div className={
                         classnames('progress',{
