@@ -44,9 +44,12 @@
     
 ### callback
     
-- `completeCallback(successImageList,imageListSize)`：上传单个文件成功后和删除文件后执行的方法，`successImageList`上传成功后的文件列表，`imageListSize`一共选择多少个文件；      
+- `completeCallback(successImageList,imageListSize)`：上传单个文件成功后和删除文件后执行的方法，`successImageList`上传成功后的文件列表，`imageListSize`一共选择多少个文件； 
+     
 - `failureCallback(file,responseText)`：上传单个文件失败后执行，`file`失败后的文件，`responseText`失败信息，由服务端返回；        
+
 - `successCallback(file,data)`：单个文件上传成功后执行，`file`上传成功的文件，`data`服务端返回的json数据；      
+
 - `renderItemCallback(files)`：返回自定义略缩图模板，用户可自定义容器中显示的内容模板，该方法的作用域为upload对象本身，`files`需要显示的文件列表，
         
     ```js
