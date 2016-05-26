@@ -1,6 +1,10 @@
 # eg-upload
 
-上传组件
+这是一款基于eagle-ui开发的上传文件组件；
+
+## UI展示
+
+![ui展示](example/img/test.gif)
 
 ## 使用
 
