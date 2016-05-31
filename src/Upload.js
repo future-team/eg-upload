@@ -128,11 +128,15 @@ export default class Upload extends Component{
             return ;
         }
 
-        this.fileList=this.fileList.concat(this.props.filter(files,this.props.maxSize) );
+        let map = this.props.filter(files,this.props.maxSize);
 
-        this.uploadFiles = files;
+        if(map && map.length && map.length >0){
+            this.fileList=this.fileList.concat(map );
 
-        this.dealFiles();
+            this.uploadFiles = map;
+            this.dealFiles();
+        }
+
     }
 
     dealFiles(){
