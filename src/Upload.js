@@ -56,6 +56,7 @@ export default class Upload extends Component{
         height:'200px',
         thumbWidth:'200px',
         thumbHeight:'200px',
+        placeholder:'此区域支持复制粘贴上传功能，仅限图片',
         completeCallback:()=>{},
         failureCallback:()=>{},
         uploadedCallback:()=>{},
@@ -108,13 +109,47 @@ export default class Upload extends Component{
                 url:''
             }
         };
+
+    }
+
+    uniqueId(){
+        return 'file-'+(new Date().getTime()+(Math.random()*1e10).toFixed(0));
+    }
+
+    getClipboardData(e){
+        let files = [],_this = this;
+
+        if(e.clipboardData){
+            //getAsString
+            let items = e.clipboardData.items,item=null,file=null;
+
+            /*items[0].getAsString(function(str){
+            } );*/
+
+            for(var i=0,len=items.length;i<len;i++){
+                item = items[i];
+                if(item.kind == 'file' || item.type.indexOf('image') > -1) {
+                    file = item.getAsFile();
+                    file.name=this.uniqueId();
+                    files.push(file );
+                }
+            }
+
+        }
+
+        return files;
     }
 
     //获取文件列表
     getFiles(e){
         e.stopPropagation();
         e.preventDefault();
-        let files = e.target.files || e.dataTransfer.files;
+
+        let files = e.target.files || (e.dataTransfer && e.dataTransfer.files) || [];
+
+        if(files.length<=0){
+            files = this.getClipboardData(e);
+        }
 
         let len = files.length +this.fileList.length;
 
@@ -305,14 +340,14 @@ export default class Upload extends Component{
                         _this.imageFilter.test(file.type) ?
                             (<div>
                                 <img src={file.result} alt={file.name} title={file.name} onClick={::_this.showPic.bind(_this,file)}
-                                    style={{
+                                     style={{
                                         width:this.props.thumbWidth,
                                         height:this.props.thumbHeight
                                     }}
-                                />
+                                    />
                                 <div className="text" style={{
                                     width:this.props.thumbWidth
-                                }}>{file.name}</div>
+                                }} title={file.name}>{file.name}</div>
                             </div>):
                             <div className="text"  style={{
                                         width:this.props.thumbWidth,
@@ -331,6 +366,7 @@ export default class Upload extends Component{
                 </li>
             );
         });
+
         return items;
     }
 
@@ -344,13 +380,12 @@ export default class Upload extends Component{
             if(file){
                 _this.isRender = false;
                 if(_this.imageFilter.test(file.type) ){
-
                     var reader = new FileReader();
                     reader.onload = function(e) {
                         items.push(
                             {
                                 index:file.index,
-                                name:file.name,
+                                name:file.name||_this.uniqueId(),
                                 result:e.target.result,
                                 type:file.type
                             }
@@ -359,11 +394,12 @@ export default class Upload extends Component{
                         render();
                     };
                     reader.readAsDataURL( file );
+
                 }else{
                     items.push(
                         {
                             index:file.index,
-                            name:file.name,
+                            name:file.name||_this.uniqueId(),
                             result:'',
                             type:file.type
                         }
@@ -409,13 +445,13 @@ export default class Upload extends Component{
 
                 </div>
                 <div className="item-list">
-                    <ul  onDrop={::this.getFiles} onDragLeave={::this.dragLeave} onDragOver={::this.dragOver} className={classnames({
+                    <ul onDrop={::this.getFiles} onDragLeave={::this.dragLeave} onDragOver={::this.dragOver}  onPaste={::this.getFiles} className={classnames({
                         'drag':this.state.isDrag
                     },'clearfix')} style={{
                         width:this.props.width,
                         minHeight:this.props.height
                     }}>
-                        {this.state.baseList.length > 0? (this.props.renderItemCallback ?this.props.renderItemCallback.bind(this,this.state.baseList) : this.renderItems(this.state.baseList) ):''}
+                        {this.state.baseList.length > 0? (this.props.renderItemCallback ?this.props.renderItemCallback.bind(this,this.state.baseList) : this.renderItems(this.state.baseList) ):<li className="placeholder" style={{ minHeight:this.props.height,lineHeight:this.props.height}}>{this.props.placeholder}</li>}
                     </ul>
                 </div>
 

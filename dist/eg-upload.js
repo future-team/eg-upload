@@ -174,6 +174,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            height: '200px',
 	            thumbWidth: '200px',
 	            thumbHeight: '200px',
+	            placeholder: '此区域支持复制粘贴上传功能，仅限图片',
 	            completeCallback: function completeCallback() {},
 	            failureCallback: function failureCallback() {},
 	            uploadedCallback: function uploadedCallback() {},
@@ -234,12 +235,47 @@ return /******/ (function(modules) { // webpackBootstrap
 	        };
 	    }
 
+	    Upload.prototype.uniqueId = function uniqueId() {
+	        return 'file-' + (new Date().getTime() + (Math.random() * 1e10).toFixed(0));
+	    };
+
+	    Upload.prototype.getClipboardData = function getClipboardData(e) {
+	        var files = [],
+	            _this = this;
+
+	        if (e.clipboardData) {
+	            //getAsString
+	            var items = e.clipboardData.items,
+	                item = null,
+	                file = null;
+
+	            /*items[0].getAsString(function(str){
+	            } );*/
+
+	            for (var i = 0, len = items.length; i < len; i++) {
+	                item = items[i];
+	                if (item.kind == 'file' || item.type.indexOf('image') > -1) {
+	                    file = item.getAsFile();
+	                    file.name = this.uniqueId();
+	                    files.push(file);
+	                }
+	            }
+	        }
+
+	        return files;
+	    };
+
 	    //获取文件列表
 
 	    Upload.prototype.getFiles = function getFiles(e) {
 	        e.stopPropagation();
 	        e.preventDefault();
-	        var files = e.target.files || e.dataTransfer.files;
+
+	        var files = e.target.files || e.dataTransfer && e.dataTransfer.files || [];
+
+	        if (files.length <= 0) {
+	            files = this.getClipboardData(e);
+	        }
 
 	        var len = files.length + this.fileList.length;
 
@@ -447,7 +483,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                        'div',
 	                        { className: 'text', style: {
 	                                width: _this3.props.thumbWidth
-	                            } },
+	                            }, title: file.name },
 	                        file.name
 	                    )
 	                ) : _react2['default'].createElement(
@@ -479,6 +515,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                )
 	            ));
 	        });
+
 	        return items;
 	    };
 
@@ -495,12 +532,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	            if (file) {
 	                _this.isRender = false;
 	                if (_this.imageFilter.test(file.type)) {
-
 	                    var reader = new FileReader();
 	                    reader.onload = function (e) {
 	                        items.push({
 	                            index: file.index,
-	                            name: file.name,
+	                            name: file.name || _this.uniqueId(),
 	                            result: e.target.result,
 	                            type: file.type
 	                        });
@@ -511,7 +547,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                } else {
 	                    items.push({
 	                        index: file.index,
-	                        name: file.name,
+	                        name: file.name || _this.uniqueId(),
 	                        result: '',
 	                        type: file.type
 	                    });
@@ -561,13 +597,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	                { className: 'item-list' },
 	                _react2['default'].createElement(
 	                    'ul',
-	                    { onDrop: this.getFiles.bind(this), onDragLeave: this.dragLeave.bind(this), onDragOver: this.dragOver.bind(this), className: _classnames2['default']({
+	                    { onDrop: this.getFiles.bind(this), onDragLeave: this.dragLeave.bind(this), onDragOver: this.dragOver.bind(this), onPaste: this.getFiles.bind(this), className: _classnames2['default']({
 	                            'drag': this.state.isDrag
 	                        }, 'clearfix'), style: {
 	                            width: this.props.width,
 	                            minHeight: this.props.height
 	                        } },
-	                    this.state.baseList.length > 0 ? this.props.renderItemCallback ? this.props.renderItemCallback.bind(this, this.state.baseList) : this.renderItems(this.state.baseList) : ''
+	                    this.state.baseList.length > 0 ? this.props.renderItemCallback ? this.props.renderItemCallback.bind(this, this.state.baseList) : this.renderItems(this.state.baseList) : _react2['default'].createElement(
+	                        'li',
+	                        { className: 'placeholder', style: { minHeight: this.props.height, lineHeight: this.props.height } },
+	                        this.props.placeholder
+	                    )
 	                )
 	            ),
 	            _react2['default'].createElement(
@@ -1200,7 +1240,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 	// module
-	exports.push([module.id, ".eg-upload button {\n  position: relative;\n}\n.eg-upload input[type=\"file\"] {\n  width: 100%;\n  position: absolute;\n  height: 100%;\n  left: 0;\n  top: 0;\n  opacity: 0;\n  cursor: pointer;\n}\n.eg-upload .item-list {\n  overflow: hidden;\n  position: relative;\n}\n.eg-upload ul {\n  width: 100%;\n  min-height: 200px;\n  margin-top: 5px;\n  border: 1px dashed #e2e2e2;\n  background: #fff;\n}\n.eg-upload ul li {\n  margin: 5px 5px;\n  float: left;\n  position: relative;\n}\n.eg-upload ul li i {\n  position: absolute;\n  width: 20px;\n  height: 20px;\n  -webkit-border-radius: 50%;\n  -moz-border-radius: 50%;\n  border-radius: 50%;\n  font-style: normal;\n  background: #ccc;\n  color: #fff;\n  text-align: center;\n  line-height: 20px;\n  top: -8px;\n  right: -8px;\n  cursor: pointer;\n  display: none;\n}\n.eg-upload ul li .text {\n  text-align: center;\n  overflow: hidden;\n  white-space: nowrap;\n  text-overflow: ellipsis;\n  width: 200px;\n}\n.eg-upload ul img {\n  width: 200px;\n  height: 200px;\n  cursor: pointer;\n}\n.eg-upload ul.drag {\n  border-color: #999;\n}\n.eg-upload ul .progress {\n  width: 100%;\n  height: 15px;\n  background: rgba(255, 255, 255, 0.8);\n  position: absolute;\n  top: 50%;\n  color: #fff;\n  font-size: 12px;\n  line-height: 15px;\n  margin-top: -7px;\n}\n.eg-upload ul .progress b {\n  text-align: right;\n  display: block;\n  width: 0;\n  height: 100%;\n  background-color: #eb6032;\n  background-image: -webkit-gradient(linear, left top, left bottom, from(#ee5511), to(#e86c54));\n  background-image: -webkit-linear-gradient(top, #ee5511, #e86c54);\n  background-image: -moz-linear-gradient(top, #ee5511, #e86c54);\n  background-image: -o-linear-gradient(top, #ee5511, #e86c54);\n  background-image: -ms-linear-gradient(top, #ee5511, #e86c54);\n  background-image: linear-gradient(top, #ee5511, #e86c54);\n  filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0, StartColorStr='#ee5511', EndColorStr='#e86c54');\n  -webkit-transition: all ease-in-out 0.4s;\n  -moz-transition: all ease-in-out 0.4s;\n  -ms-transition: all ease-in-out 0.4s;\n  -o-transition: all ease-in-out 0.4s;\n  transition: all ease-in-out 0.4s;\n}\n", ""]);
+	exports.push([module.id, ".eg-upload button {\n  position: relative;\n}\n.eg-upload input[type=\"file\"] {\n  width: 100%;\n  position: absolute;\n  height: 100%;\n  left: 0;\n  top: 0;\n  opacity: 0;\n  cursor: pointer;\n}\n.eg-upload .item-list {\n  overflow: hidden;\n  position: relative;\n}\n.eg-upload ul {\n  width: 100%;\n  min-height: 200px;\n  margin-top: 5px;\n  border: 1px dashed #e2e2e2;\n  background: #fff;\n}\n.eg-upload ul li {\n  margin: 5px 5px;\n  float: left;\n  position: relative;\n}\n.eg-upload ul li.placeholder {\n  width: 100%;\n  text-align: center;\n  color: #e2e2e2;\n  font-size: 22px;\n}\n.eg-upload ul li i {\n  position: absolute;\n  width: 20px;\n  height: 20px;\n  -webkit-border-radius: 50%;\n  -moz-border-radius: 50%;\n  border-radius: 50%;\n  font-style: normal;\n  background: #ccc;\n  color: #fff;\n  text-align: center;\n  line-height: 20px;\n  top: -8px;\n  right: -8px;\n  cursor: pointer;\n  display: none;\n}\n.eg-upload ul li .text {\n  text-align: center;\n  overflow: hidden;\n  white-space: nowrap;\n  text-overflow: ellipsis;\n  width: 200px;\n}\n.eg-upload ul img {\n  width: 200px;\n  height: 200px;\n  cursor: pointer;\n}\n.eg-upload ul.drag {\n  border-color: #999;\n}\n.eg-upload ul .progress {\n  width: 100%;\n  height: 15px;\n  background: rgba(255, 255, 255, 0.8);\n  position: absolute;\n  top: 50%;\n  color: #fff;\n  font-size: 12px;\n  line-height: 15px;\n  margin-top: -7px;\n}\n.eg-upload ul .progress b {\n  text-align: right;\n  display: block;\n  width: 0;\n  height: 100%;\n  background-color: #eb6032;\n  background-image: -webkit-gradient(linear, left top, left bottom, from(#ee5511), to(#e86c54));\n  background-image: -webkit-linear-gradient(top, #ee5511, #e86c54);\n  background-image: -moz-linear-gradient(top, #ee5511, #e86c54);\n  background-image: -o-linear-gradient(top, #ee5511, #e86c54);\n  background-image: -ms-linear-gradient(top, #ee5511, #e86c54);\n  background-image: linear-gradient(top, #ee5511, #e86c54);\n  filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0, StartColorStr='#ee5511', EndColorStr='#e86c54');\n  -webkit-transition: all ease-in-out 0.4s;\n  -moz-transition: all ease-in-out 0.4s;\n  -ms-transition: all ease-in-out 0.4s;\n  -o-transition: all ease-in-out 0.4s;\n  transition: all ease-in-out 0.4s;\n}\n", ""]);
 
 	// exports
 
