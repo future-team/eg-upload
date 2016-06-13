@@ -130,6 +130,7 @@ export default class Upload extends Component{
                 item = items[i];
                 if(item.kind == 'file' || item.type.indexOf('image') > -1) {
                     file = item.getAsFile();
+
                     file.name=this.uniqueId();
                     files.push(file );
                 }
@@ -147,8 +148,13 @@ export default class Upload extends Component{
 
         let files = e.target.files || (e.dataTransfer && e.dataTransfer.files) || [];
 
+        let isClip = false;
+
         if(files.length<=0){
             files = this.getClipboardData(e);
+            if(files.length > 0){
+                isClip = true;
+            }
         }
 
         let len = files.length +this.fileList.length;
@@ -165,24 +171,31 @@ export default class Upload extends Component{
 
         let map = this.props.filter(files,this.props.maxSize);
 
+
         if(map && map.length && map.length >0){
             this.fileList=this.fileList.concat(map );
 
-            this.uploadFiles = map;
-            this.dealFiles();
+            if(!isClip){
+                this.uploadFiles = map;
+            }
+            this.dealFiles(!isClip);
+
         }
 
     }
 
-    dealFiles(){
+    dealFiles(upload = true){
 
         for (var i = 0, file; file = this.fileList[i]; i++) {
             //增加唯一索引值
             file.index = i;
         }
         //执行选择回调
-        this.select();
-        this.upload();
+        this.select(this.fileList,!upload);
+        if(upload){
+            this.upload();
+        }
+
         //this.onSelect(this.fileFilter);
         //this.renderItem(this.fileList);
     }
@@ -275,6 +288,7 @@ export default class Upload extends Component{
                     xhr.open("POST", _this.props.uploadUrl, true);
                     xhr.setRequestHeader('X_FILENAME', encodeURIComponent(file.name));
                     let f = new FormData();
+                    debugger;
                     f.append(file.name, file);
                     xhr.send(f);
                 }
@@ -370,7 +384,7 @@ export default class Upload extends Component{
         return items;
     }
 
-    select(files=this.fileList){
+    select(files=this.fileList,upload=false){
 
         let items = [],i=0,_this = this;
         let file  =null;
@@ -391,6 +405,9 @@ export default class Upload extends Component{
                             }
                         );
                         i++;
+                        if(upload){
+
+                        }
                         render();
                     };
                     reader.readAsDataURL( file );
