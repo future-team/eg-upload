@@ -338,7 +338,10 @@ export default class Upload extends Component{
 
                     {
                         _this.imageFilter.test(file.type) ?
-                            (<div>
+                            (<div style={{
+                                        width:this.props.thumbWidth,
+                                        height:this.props.thumbHeight
+                                    }}>
                                 <img src={file.result} alt={file.name} title={file.name} onClick={::_this.showPic.bind(_this,file)}
                                      style={{
                                         width:this.props.thumbWidth,

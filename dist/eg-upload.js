@@ -472,7 +472,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	                { key: file.index, onMouseEnter: (_context = _this.closeStatus).bind.call(_context, _this, 'block'), onMouseLeave: (_context = _this.closeStatus).bind.call(_context, _this, 'none') },
 	                _this.imageFilter.test(file.type) ? _react2['default'].createElement(
 	                    'div',
-	                    null,
+	                    { style: {
+	                            width: _this3.props.thumbWidth,
+	                            height: _this3.props.thumbHeight
+	                        } },
 	                    _react2['default'].createElement('img', { src: file.result, alt: file.name, title: file.name, onClick: (_context = _this.showPic).bind.call(_context, _this, file),
 	                        style: {
 	                            width: _this3.props.thumbWidth,
