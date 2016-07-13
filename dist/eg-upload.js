@@ -156,7 +156,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	            //上传url
 	            uploadUrl: _react.PropTypes.string,
 	            //允许上传文件大小
-	            maxSize: _react.PropTypes.number
+	            maxSize: _react.PropTypes.number,
+	            hideImgViewWhenEmpty: _react.PropTypes.bool
 	        },
 	        enumerable: true
 	    }, {
@@ -597,7 +598,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	            ),
 	            _react2['default'].createElement(
 	                'div',
-	                { className: 'item-list' },
+	                { className: 'item-list', style: {
+	                        display: this.props.hideImgViewWhenEmpty && this.state.baseList.length == 0 ? 'none' : 'block'
+	                    } },
 	                _react2['default'].createElement(
 	                    'ul',
 	                    { onDrop: this.getFiles.bind(this), onDragLeave: this.dragLeave.bind(this), onDragOver: this.dragOver.bind(this), onPaste: this.getFiles.bind(this), className: _classnames2['default']({
@@ -863,13 +866,11 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	        return _react2['default'].createElement(
 	            _eagleUi.Dialog,
-	            _extends({ id: this.props.id, isClose: true, isMask: true, title: file.name || '', egSize: 'lg' }, this.props),
+	            _extends({ id: this.props.id, isClose: true, isMask: true, title: file.name || '' }, this.props),
 	            _react2['default'].createElement(
 	                'div',
-	                { style: {
-	                        overflow: 'hidden'
-	                    } },
-	                _react2['default'].createElement('img', { ref: this.imgId, src: file.url, alt: '', style: { width: "100%", height: "auto", maxHeight: document.documentElement.clientHeight * 1 - 100 + 'px', transform: this.transform } }),
+	                null,
+	                _react2['default'].createElement('img', { ref: this.imgId, src: file.url, alt: '', style: { width: "100%", height: 'auto', maxHeight: document.documentElement.clientHeight * 1 - 100 + 'px', transform: this.transform } }),
 	                _react2['default'].createElement(
 	                    'div',
 	                    { className: 'icon-box' },

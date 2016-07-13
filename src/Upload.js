@@ -40,7 +40,8 @@ export default class Upload extends Component{
         //上传url
         uploadUrl:PropTypes.string,
         //允许上传文件大小
-        maxSize:PropTypes.number
+        maxSize:PropTypes.number,
+        hideImgViewWhenEmpty:PropTypes.bool
     };
 
     static defaultProps = {
@@ -447,7 +448,9 @@ export default class Upload extends Component{
                     </Button>
 
                 </div>
-                <div className="item-list">
+                <div className="item-list" style={{
+                    display:((this.props.hideImgViewWhenEmpty&&this.state.baseList.length == 0)?'none':'block')
+                }}>
                     <ul onDrop={::this.getFiles} onDragLeave={::this.dragLeave} onDragOver={::this.dragOver}  onPaste={::this.getFiles} className={classnames({
                         'drag':this.state.isDrag
                     },'clearfix')} style={{

@@ -9,8 +9,24 @@ var filter = function(files){
     }
     return arrFiles;
 };
+class Demo extends Component{
+    paste(e){
+        this.refs.uploader.getFiles(e);
+    }
+    render(){
+       return (
+           <div>
+                <textarea onPaste={::this.paste}>
+                </textarea>
+               <Upload ref='uploader' hideImgViewWhenEmpty uploadUrl="http://172.24.121.17:8080/attachment/upload" maxNumber={5} filter={filter} />
+           </div>
+       )
+    }
+}
+
+
 
 ReactDom.render(
-    <Upload uploadUrl="http://172.24.121.17:8080/attachment/upload" maxNumber={5} filter={filter} />,
+    <Demo></Demo>,
     document.getElementById('root')
 );
