@@ -52,14 +52,14 @@ return /******/ (function(modules) { // webpackBootstrap
 /************************************************************************/
 /******/ ([
 /* 0 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	module.exports = __webpack_require__(1);
 
 
-/***/ },
+/***/ }),
 /* 1 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	//export Table from './tables/Table.js';
 	'use strict';
@@ -78,9 +78,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	    Eagleui.Upload = exports['Upload'];
 	}
 
-/***/ },
+/***/ }),
 /* 2 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	/**
 	 * Created by mac on 16/5/9.
@@ -257,7 +257,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	                item = items[i];
 	                if (item.kind == 'file' || item.type.indexOf('image') > -1) {
 	                    file = item.getAsFile();
-	                    file.name = this.uniqueId();
+	                    try {
+	                        file.name = this.uniqueId();
+	                    } catch (ex) {
+	                        console.warn('不支持更改可读属性name！');
+	                    }
 	                    files.push(file);
 	                }
 	            }
@@ -405,7 +409,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    xhr.open("POST", _this.props.uploadUrl, true);
 	                    xhr.setRequestHeader('X_FILENAME', encodeURIComponent(file.name));
 	                    var f = new FormData();
-	                    f.append(file.name, file);
+	                    f.append(file.name || '', file);
 	                    xhr.send(f);
 	                }
 	            })(file);
@@ -635,27 +639,27 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports['default'] = Upload;
 	module.exports = exports['default'];
 
-/***/ },
+/***/ }),
 /* 3 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	module.exports = __WEBPACK_EXTERNAL_MODULE_3__;
 
-/***/ },
+/***/ }),
 /* 4 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	module.exports = __WEBPACK_EXTERNAL_MODULE_4__;
 
-/***/ },
+/***/ }),
 /* 5 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	module.exports = __WEBPACK_EXTERNAL_MODULE_5__;
 
-/***/ },
+/***/ }),
 /* 6 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
 	  Copyright (c) 2016 Jed Watson.
@@ -707,17 +711,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	}());
 
 
-/***/ },
+/***/ }),
 /* 7 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	module.exports = __WEBPACK_EXTERNAL_MODULE_7__;
 
-/***/ },
+/***/ }),
 /* 8 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
-	//export Table from './tables/Table.js';
 	'use strict';
 
 	exports.__esModule = true;
@@ -734,9 +737,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	    Eagleui.Upload = exports['ImageView'];
 	}
 
-/***/ },
+/***/ }),
 /* 9 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	/**
 	 * Created by mac on 16/5/9.
@@ -770,21 +773,13 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _classnames2 = _interopRequireDefault(_classnames);
 
-	var _reactLibReactDOM = __webpack_require__(7);
-
-	var _reactLibReactDOM2 = _interopRequireDefault(_reactLibReactDOM);
-
-	var _eagleUiLibUtilsDom = __webpack_require__(10);
-
-	var _eagleUiLibUtilsDom2 = _interopRequireDefault(_eagleUiLibUtilsDom);
-
-	var _Draggable = __webpack_require__(11);
+	var _Draggable = __webpack_require__(10);
 
 	var _Draggable2 = _interopRequireDefault(_Draggable);
 
-	var _cssImageviewLess = __webpack_require__(13);
+	__webpack_require__(13);
 
-	var _cssImageviewLess2 = _interopRequireDefault(_cssImageviewLess);
+	var _utils = __webpack_require__(12);
 
 	var ImageView = (function (_Component) {
 	    _inherits(ImageView, _Component);
@@ -812,11 +807,66 @@ return /******/ (function(modules) { // webpackBootstrap
 	        key: 'defaultProps',
 	        value: {
 	            componentTag: 'div',
+	            /**
+	             * @param file
+	             * 图片参数数组
+	             * @default []
+	             * */
 	            file: {
 	                name: '',
 	                url: ''
 	            },
-	            id: ''
+	            id: '',
+	            /**
+	             * @param isMask
+	             * 是显示遮罩层
+	             * @default true
+	             * */
+	            isMask: true,
+	            /**
+	             * @param isLoop
+	             * 是否循环播放
+	             * @default true
+	             * */
+	            isLoop: true,
+	            /**
+	             * @param activeIndex
+	             * 当前展示图片下标
+	             * @default 0
+	             * */
+	            activeIndex: 0,
+	            /**
+	             * @param showIcon
+	             * 配置要显示的操作图标
+	             * @default Object
+	             * */
+	            showIcon: {
+	                /**
+	                 * @param leftRotate
+	                 * 是否显示左旋转图标
+	                 * @default false
+	                 * */
+	                leftRotate: false,
+	                /**
+	                 * @param rightRotate
+	                 * 是否显示左旋转图标
+	                 * @default false
+	                 * */
+	                rightRotate: false,
+	                /**
+	                 * @param zoomIn
+	                 * 是否显示放大图标
+	                 * @default false
+	                 * */
+	                zoomIn: false,
+	                /**
+	                 * @param zoomOut
+	                 * 是否显示放大图标
+	                 * @default false
+	                 * */
+	                zoomOut: false
+
+	            }
 	        },
 	        enumerable: true
 	    }]);
@@ -825,27 +875,43 @@ return /******/ (function(modules) { // webpackBootstrap
 	        _classCallCheck(this, ImageView);
 
 	        _Component.call(this, props, context);
-
-	        //this.imageSliderId = this.uniqueId();
 	        this.imgId = this.uniqueId();
+	        this.totalNum = 1;
 	        this.transform = 'scale(1, 1) rotate(0deg)';
 	        this.state = {
-	            maxHeight: document.documentElement.clientHeight * 1 - 100,
-	            maxWidth: document.documentElement.clientWidth * 1 - 100,
+	            maxHeight: document.documentElement.clientHeight - 100,
+	            maxWidth: document.documentElement.clientWidth - 100,
 	            imgWrap: {
 	                height: 'auto',
 	                width: 'auto'
 	            },
-	            modifyImgStyle: null
+	            activeIndex: this.props.activeIndex || 0,
+	            name: '图片',
+	            //动画准备，暂时不用
+	            sizeChange: false
 	        };
+	        this.initSize = {
+	            height: 'auto',
+	            width: 'auto'
+	        };
+	        this.isLoop = this.props.isLoop;
+	        this.showIcon = this.props.showIcon;
 	    }
 
-	    /*static show(){
-	        this.transform = 'scale(1, 1) rotate(0deg)';
-	         Dialog.mask(this.imageSliderId);
-	    }*/
+	    /**
+	     * 判断旋转方向
+	     * */
 
-	    ImageView.prototype.cssEnhance = function cssEnhance(type) {
+	    ImageView.prototype.getDirNum = function getDirNum(rorateVal, dir) {
+
+	        return dir == 1 ? rorateVal >= 0 ? 1 : -1 : rorateVal <= 0 ? -1 : 1;
+	    };
+
+	    /**
+	     * @dir -1 向左 1 向右
+	     * */
+
+	    ImageView.prototype.cssEnhance = function cssEnhance(type, dir) {
 	        var val = this.transform.match(/-?\d+\.?\d*/g);
 	        if (val && val.length >= 3) {
 	            var _ = 0;
@@ -867,47 +933,57 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    rotate = 0;
 	                    break;
 	            }
-	            // this.transform = val;
-	            this.calculatePosition(zoom, rotate, type);
+	            this.calculatePosition(zoom, rotate, type, dir);
 	        }
 	    };
 
-	    ImageView.prototype.handleResize = function handleResize() {
-	        // TODO
-	        // this.setState({
-	        //     maxHeight: (document.documentElement.clientHeight*1-100),
-	        //     maxWidth: (document.documentElement.clientWidth*1-100),
-	        // })
-	    };
-
-	    ImageView.prototype.componentDidMount = function componentDidMount() {};
-
-	    ImageView.prototype.componentWillUnmount = function componentWillUnmount() {};
-
 	    ImageView.prototype.componentWillReceiveProps = function componentWillReceiveProps(nextProps) {
-	        this.transform = 'scale(1, 1) rotate(0deg)';
+	        var index = nextProps.activeIndex;
 	        this.setState({
 	            imgWrap: {
 	                height: 'auto',
 	                width: 'auto'
 	            },
-	            modifyImgStyle: null
+	            activeIndex: typeof index == 'undefined' ? this.state.activeIndex : index
 	        });
+	        this.isLoop = nextProps.isLoop;
+	        this.showIcon = Object.assign(this.showIcon, nextProps.showIcon);
+	        this.resetImageStatus();
 	    };
+
+	    ImageView.prototype.transformImg = function transformImg() {
+	        /**
+	         * @todo 原来操作dom，先不管等待改进
+	         * */
+	        setTimeout((function () {
+	            var dom = document.getElementById(this.imgId);
+	            if (dom != null) {
+	                var domStyle = dom.style; //ReactDom.findDOMNode(this.refs[this.imgId]).style;
+	                domStyle.WebkitTransform = this.transform;
+	                domStyle.msTransform = this.transform;
+	                domStyle.OTransform = this.transform;
+	                domStyle.transform = this.transform;
+	            }
+	        }).bind(this));
+	    };
+
+	    /**
+	     * 获取img size & reset
+	     * https://bugs.chromium.org/p/chromium/issues/detail?id=7731
+	     * */
 
 	    ImageView.prototype.onLoadHandler = function onLoadHandler(e) {
-	        // 获取首次加载图片的大小
-	        this.imgSize = _eagleUiLibUtilsDom2['default'](e.target).offset(); //.getBoundingClientRect();
+	        // 获取加载图片的大小
+	        this.imgSize = this.getImgSize(this.state.activeIndex);
+	        var size = this.imgSize;
 	        this.setState({
-	            imgWrap: {
-	                width: this.imgSize.width,
-	                height: this.imgSize.height
-	            }
+	            imgWrap: size
 	        });
+	        this.resetImageStatus();
 	    };
 
-	    ImageView.prototype.getDeg = function getDeg(deg) {
-	        switch (deg / 180 % 2) {
+	    ImageView.prototype.getDeg = function getDeg(deg, dir) {
+	        switch (deg / 180 % 2 * dir) {
 	            case 0:
 	            case 1:
 	                deg = 0;
@@ -929,33 +1005,39 @@ return /******/ (function(modules) { // webpackBootstrap
 	     * @param zoom 放大/缩小
 	     * @param rotate 旋转
 	     * @param type 操作类型
+	     * @param dir 旋转方向
 	     */
 
-	    ImageView.prototype.calculatePosition = function calculatePosition(zoom, rotate, type) {
+	    ImageView.prototype.calculatePosition = function calculatePosition(zoom, rotate, type, dir) {
 	        var vals = this.transform.match(/-?\d+\.?\d*/g);
 	        var scaleVal = vals[0] * 1 + zoom;
-	        var rotateVal = vals[2] * 1 + rotate;
+	        var rotateVal = vals[2] * 1 + rotate * dir;
 	        var diff = vals[3] || vals[4] || 0;
+	        var imgSize = this.imgSize;
+	        if (!imgSize || !imgSize.width || !imgSize.height) {
+	            imgSize = this.imgSize = this.getImgSize(this.state.activeIndex);
+	        }
 	        if (type == 'rotate') {
-	            var tx = this.getDeg(rotateVal);
+	            var dirNum = this.getDirNum(rotateVal, dir);
+	            var tx = this.getDeg(rotateVal, dirNum);
 	            if (tx == 0) {
 	                // 重置为正常
 	                diff = 0;
 	                // 正常的显示
 	                this.setState({
 	                    imgWrap: {
-	                        width: this.imgSize.width,
-	                        height: this.imgSize.height
-	                    },
-	                    modifyImgStyle: null
+	                        width: imgSize.width,
+	                        height: imgSize.height
+	                    }
 	                });
 	            } else {
 	                // 图片的宽高比
-	                var imgScaleHW = this.imgSize.width / this.imgSize.height;
-	                var iH = this.state.imgWrap.height;
-	                var iW = this.state.imgWrap.width;
+	                var imgScaleHW = imgSize.width / imgSize.height;
+	                var iH = imgSize.height;
+	                var iW = imgSize.width;
 	                var mW = this.state.maxWidth;
 	                var mH = this.state.maxHeight;
+	                var _dirNum = this.getDirNum(rotateVal, dir);
 	                // wrap 的宽高转换
 	                if (iH > mW) {
 	                    // 计算 iw 的值
@@ -967,15 +1049,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    iW = mH;
 	                }
 	                // 计算偏移
-	                diff = tx * (iW - iH) / 2;
+	                diff = _dirNum * tx * (iW - iH) / 2;
 	                this.setState({
 	                    imgWrap: {
 	                        width: iH,
 	                        height: iW
-	                    },
-	                    modifyImgStyle: {
-	                        width: iW,
-	                        height: iH
 	                    }
 	                });
 	            }
@@ -984,7 +1062,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	            this.draggable.reset();
 	        }
 	        var diffVal = diff * 1;
+	        // 如果为负数的话,图片就旋转了
+	        if (scaleVal <= 0) {
+	            return;
+	        }
 	        // 计算是否缩放
+	        // TODO 需要优化
 	        var _zoom = zoom || scaleVal - 1;
 	        if (_zoom != 0) {
 	            _zoom = _zoom > 0 ? 0.5 : 2;
@@ -992,58 +1075,293 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }
 	        this.transform = 'scale(' + scaleVal + ', ' + scaleVal + ') rotate(' + rotateVal + 'deg) translate(' + diffVal + 'px, ' + diffVal + 'px)';
 	        // 渲染生效
-	        setTimeout((function () {
-	            _reactLibReactDOM2['default'].findDOMNode(this.refs[this.imgId]).style.transform = this.transform;
-	        }).bind(this));
-	        _eagleUi.Dialog.mask(this.props.id);
+	        //@todo 原来操作dom不太好，需改进
+	        this.transformImg();
+	        // Dialog.mask(this.props.id);
 	    };
 
 	    ImageView.prototype.render = function render() {
 	        var _context,
 	            _this = this;
 
+	        this.isFile = !!this.props.children ? false : true;
 	        var file = this.props.file;
+
+	        var files = !this.isFile ? this.transToFile() : file;
+	        this.saveToLocal(files);
+	        this.name = this.getImgName(this.state.activeIndex);
+	        this.totalNum = this.getFileLength();
+	        var _showIcon = this.showIcon;
+	        var leftRotate = _showIcon.leftRotate;
+	        var rightRotate = _showIcon.rightRotate;
+	        var zoomIn = _showIcon.zoomIn;
+	        var zoomOut = _showIcon.zoomOut;
 
 	        return _react2['default'].createElement(
 	            _eagleUi.Dialog,
-	            _extends({ id: this.props.id, isClose: true, isMask: true, title: file.name || '' }, this.props),
+	            _extends({ className: 'imgview-dialog', id: this.props.id, isClose: true, isMask: this.props.isMask, title: this.name }, this.props),
 	            _react2['default'].createElement(
 	                'div',
-	                null,
+	                { className: 'img-hover' },
 	                _react2['default'].createElement(
 	                    'div',
 	                    { className: "img-wrap " + (this.props.overflow ? 'img-wrap-hidden' : 'img-wrap-show'),
 	                        style: {
 	                            height: this.state.imgWrap.height,
-	                            width: this.state.imgWrap.width } },
+	                            width: this.state.imgWrap.width
+	                        } },
 	                    _react2['default'].createElement(
 	                        _Draggable2['default'],
 	                        { ref: function (draggable) {
 	                                _this.draggable = draggable;
 	                            } },
-	                        _react2['default'].createElement('img', { draggable: 'false', id: this.imgId,
-	                            onLoad: this.onLoadHandler.bind(this),
-	                            ref: this.imgId,
-	                            src: file.url, alt: '',
-	                            style: _extends({
-	                                maxHeight: this.state.maxHeight + 'px',
-	                                maxWidth: this.state.maxWidth + 'px',
-	                                msTransform: this.transform,
-	                                WebkitTransform: this.transform,
-	                                MozTransform: this.transform,
-	                                OTransform: this.transform,
-	                                transform: this.transform }, this.state.modifyImgStyle) })
+	                        this.renderContent()
 	                    )
 	                ),
 	                _react2['default'].createElement(
 	                    'div',
+	                    { className: _classnames2['default']('icon-side left-15', this.isShowSideArrow()) },
+	                    _react2['default'].createElement(_eagleUi.Icon, { onClick: (_context = this.countIndex).bind.call(_context, this, 'left'), className: 'upload-icon',
+	                        name: 'chevron-left' })
+	                ),
+	                _react2['default'].createElement(
+	                    'div',
+	                    { className: _classnames2['default']('icon-side right-15', this.isShowSideArrow()) },
+	                    _react2['default'].createElement(_eagleUi.Icon, { onClick: (_context = this.countIndex).bind.call(_context, this, 'right'), className: 'upload-icon',
+	                        name: 'chevron-right' })
+	                ),
+	                _react2['default'].createElement(
+	                    'div',
 	                    { className: 'icon-box' },
-	                    _react2['default'].createElement(_eagleUi.Icon, { onClick: (_context = this.cssEnhance).bind.call(_context, this, 'rotate'), className: 'upload-icon', name: 'radio_unchecked', alt: '旋转' }),
-	                    _react2['default'].createElement(_eagleUi.Icon, { onClick: (_context = this.cssEnhance).bind.call(_context, this, 'max'), className: 'upload-icon', name: 'add', alt: '放大' }),
-	                    _react2['default'].createElement(_eagleUi.Icon, { onClick: (_context = this.cssEnhance).bind.call(_context, this, 'min'), className: 'upload-icon', name: 'remove', alt: '缩小' })
+	                    _react2['default'].createElement(_eagleUi.Icon, { onClick: (_context = this.cssEnhance).bind.call(_context, this, 'rotate', -1),
+	                        className: _classnames2['default']('upload-icon', this.isHideIcon('left')),
+	                        name: 'zuoxuanzhuan',
+	                        alt: '左旋转' }),
+	                    _react2['default'].createElement(_eagleUi.Icon, { onClick: (_context = this.cssEnhance).bind.call(_context, this, 'rotate', 1),
+	                        className: _classnames2['default']('upload-icon', this.isHideIcon('right')),
+	                        name: 'youxuanzhuan',
+	                        alt: '右旋转' }),
+	                    _react2['default'].createElement(_eagleUi.Icon, { onClick: (_context = this.cssEnhance).bind.call(_context, this, 'max', 1),
+	                        className: _classnames2['default']('upload-icon', this.isHideIcon(zoomIn)),
+	                        name: 'add',
+	                        alt: '放大' }),
+	                    _react2['default'].createElement(_eagleUi.Icon, { onClick: (_context = this.cssEnhance).bind.call(_context, this, 'min', 1),
+	                        className: _classnames2['default']('upload-icon', this.isHideIcon(zoomOut)),
+	                        name: 'minus',
+	                        alt: '缩小' }),
+	                    _react2['default'].createElement(
+	                        'div',
+	                        { className: 'tip-num' },
+	                        _react2['default'].createElement(
+	                            'label',
+	                            { className: 'red-txt' },
+	                            this.state.activeIndex + 1
+	                        ),
+	                        _react2['default'].createElement(
+	                            'label',
+	                            { className: 'mar-5' },
+	                            '/'
+	                        ),
+	                        _react2['default'].createElement(
+	                            'label',
+	                            { className: 'white-txt' },
+	                            this.totalNum
+	                        )
+	                    )
 	                )
 	            )
 	        );
+	    };
+
+	    /**
+	     * is show side arrow
+	     * */
+
+	    ImageView.prototype.isShowSideArrow = function isShowSideArrow() {
+	        var len = this.getFileLength();
+	        return len > 1 ? '' : 'hide';
+	    };
+
+	    /**
+	     * is show icon
+	     * */
+
+	    ImageView.prototype.isHideIcon = function isHideIcon(key) {
+	        return key ? '' : 'hide';
+	    };
+
+	    /**
+	     * 放大或者拖动时不需要overHidden
+	     * */
+
+	    ImageView.prototype.isOverHide = function isOverHide() {
+	        //return this.state.sizeChange ? '' : 'over-hidden';
+	        return '';
+	    };
+
+	    /**
+	     * 渲染多图情况
+	     * */
+
+	    ImageView.prototype.renderContent = function renderContent() {
+	        //let {file} = this.props;
+	        //let files = !this.isFile ? this.transToFile() : file;
+	        //this.saveToLocal(files);
+	        return _react2['default'].createElement(
+	            'div',
+	            null,
+	            this.renderImage(this.state.activeIndex)
+	        );
+	    };
+
+	    ImageView.prototype.renderImage = function renderImage(index) {
+	        return _react2['default'].createElement(
+	            'div',
+	            null,
+	            _react2['default'].createElement('img', { draggable: 'false', id: this.imgId,
+	                onLoad: this.onLoadHandler.bind(this),
+	                src: this.getImgSrc(index), alt: '',
+	                style: {
+	                    maxHeight: this.state.maxHeight + 'px',
+	                    maxWidth: this.state.maxWidth + 'px',
+	                    msTransform: this.transform,
+	                    WebkitTransform: this.transform,
+	                    MozTransform: this.transform,
+	                    OTransform: this.transform,
+	                    transform: this.transform } })
+	        );
+	    };
+
+	    /**
+	     * transform children to files
+	     * */
+
+	    ImageView.prototype.transToFile = function transToFile() {
+	        var file = [];
+	        _react2['default'].Children.forEach(this.props.children, function (options) {
+	            file.push({
+	                name: options.props.name,
+	                url: options.props.url
+	            });
+	        });
+	        return file;
+	    };
+
+	    /**
+	     * get file info push to local
+	     * */
+
+	    ImageView.prototype.saveToLocal = function saveToLocal(file) {
+	        this._file = _utils.isArray(file) ? file : _utils.toArray(file);
+	    };
+
+	    ImageView.prototype.getFileLength = function getFileLength() {
+	        return this._file ? this._file.length : 0;
+	    };
+
+	    ImageView.prototype.getImgOpt = function getImgOpt(index) {
+	        var i = this.isValidLength(index, 0, this.getFileLength() - 1) ? index : 0;
+	        return this._file ? this._file[i] : undefined;
+	    };
+
+	    ImageView.prototype.isValidLength = function isValidLength(index, min, max) {
+	        return index >= min ? index <= max ? true : false : false;
+	    };
+
+	    ImageView.prototype.getImgName = function getImgName(index) {
+	        var opt = this.getImgOpt(index);
+	        return opt ? opt.name : '图片';
+	    };
+
+	    ImageView.prototype.getImgSrc = function getImgSrc(index) {
+	        var opt = this.getImgOpt(index);
+	        return opt ? opt.url : '';
+	    };
+
+	    ImageView.prototype.getImgSize = function getImgSize(index) {
+	        var opt = this.getImgOpt(index),
+	            size = this.initSize,
+	            tempImg = new Image();
+	        if (!opt) return size;
+	        tempImg.src = opt.url;
+	        size = this.getModifySize(tempImg.width, tempImg.height, this.state.maxWidth, this.state.maxHeight);
+	        return size;
+	    };
+
+	    ImageView.prototype.isOver = function isOver(init, max) {
+	        return init > max;
+	    };
+
+	    /**
+	     * 是否超出最大宽高
+	     * 计算的有点草率啊。。。。
+	     *  */
+
+	    ImageView.prototype.getModifySize = function getModifySize(initW, initH, maxW, maxH) {
+	        var w = this.isOver(initW, maxW),
+	            h = this.isOver(initH, maxH),
+	            size = {
+	            width: initW,
+	            height: initH
+	        },
+	            i = initW / initH;
+	        (h || w) && (size = {
+	            width: i * maxH,
+	            height: maxH
+	        });
+	        return size;
+	    };
+
+	    ImageView.prototype.countIndex = function countIndex(dir) {
+	        var index = parseInt(this.state.activeIndex),
+	            max = this.totalNum - 1,
+	            num = index;
+	        if (dir == 'left') {
+	            index > 0 && (num = index - 1);
+	            this.isLoop && index == 0 && (num = max);
+	        } else {
+	            index < max && (num = index * 1 + 1);
+	            this.isLoop && index == max && (num = 0);
+	        }
+	        if (num != index) {
+	            this.name = this.getImgName(this.props, this.isFile, num);
+	            this.imgId = this.uniqueId();
+	            this.setState({
+	                activeIndex: num,
+	                sizeChange: false
+	            });
+	            //获得imgsize，再重新渲染
+	            this.onLoadHandler();
+	        }
+	    };
+
+	    /**
+	     * 渲染旋转箭头方向
+	     renderArrow(key,dir){
+	        let dirs={
+	            left:-1,
+	            right:1
+	        }
+	        return <div onClick={::this.cssEnhance.bind(this,'rotate',dirs[dir])}
+	                    className={classnames(
+	                                            'arrow-warp',
+	                                            `arrow-${dir}`,
+	                                             this.isHideIcon(key)
+	                                            )}>
+	                    <div className='arrow'></div>
+	                    <div className='inner'></div>
+	                </div>
+	     } * */
+
+	    /**
+	     * 重置图片的状态
+	     */
+
+	    ImageView.prototype.resetImageStatus = function resetImageStatus() {
+	        this.transform = 'scale(1, 1) rotate(0deg)';
+	        // Dialog.mask(this.props.id);
+	        this.transformImg();
+	        this.draggable && this.draggable.reset();
 	    };
 
 	    return ImageView;
@@ -1052,99 +1370,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports['default'] = ImageView;
 	module.exports = exports['default'];
 
-/***/ },
+/***/ }),
 /* 10 */
-/***/ function(module, exports) {
-
-	'use strict';
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-	var Dom = (function () {
-	    function Dom(obj) {
-	        _classCallCheck(this, Dom);
-
-	        this.obj = obj;
-	    }
-
-	    Dom.prototype.offset = function offset() {
-
-	        var element = this.obj;
-	        var w = element.offsetLeft;
-	        var t = element.offsetTop;
-	        var node = element.offsetParent;
-
-	        while (node && node.nodeName.toLowerCase() != document.body) {
-	            t += node.offsetTop;
-	            w += node.offsetLeft;
-	            node = node.offsetParent;
-	        }
-
-	        return {
-	            top: t,
-	            left: w,
-	            width: element.offsetWidth,
-	            height: element.offsetHeight
-	        };
-	    };
-
-	    Dom.prototype.parents = function parents(str) {
-	        try {
-	            var tempNode = this.obj.parentNode;
-	            while (tempNode && tempNode.tagName != arguments[0].toUpperCase()) {
-	                tempNode = tempNode.parentNode;
-	            }
-	            return [tempNode];
-	        } catch (err) {
-	            return [];
-	        }
-	    };
-
-	    Dom.prototype.matchNode = function matchNode(element, direction, start) {
-	        for (var node = element[start]; node; node = node[direction]) {
-	            if (node.nodeType == 1) return node;
-	        }
-	        return null;
-	    };
-
-	    Dom.prototype.next = function next() {
-	        return this.matchNode(this.obj, 'nextSibling', 'nextSibling');
-	    };
-
-	    Dom.prototype.prev = function prev() {
-	        return this.matchNode(this.obj, 'previousSibling', 'previousSibling');
-	    };
-
-	    Dom.prototype.first = function first() {
-	        return this.matchNode(this.obj, 'nextSibling', 'firstChild');
-	    };
-
-	    Dom.prototype.last = function last() {
-	        return this.matchNode(this.obj, 'previousSibling', 'lastChild');
-	    };
-
-	    Dom.prototype.parent = function parent() {
-	        return this.matchNode(this.obj, 'parentNode', 'parentNode');
-	    };
-
-	    Dom.prototype.children = function children() {
-	        var element = this.obj;
-	        for (var children = [], tmpEl = element.firstChild; tmpEl; tmpEl = tmpEl.nextSibling) {
-	            if (tmpEl.nodeType == 1) children.push(tmpEl);
-	        }
-	        return children;
-	    };
-
-	    return Dom;
-	})();
-
-	module.exports = function (obj) {
-	    return new Dom(obj);
-	};
-
-/***/ },
-/* 11 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	/**
 	 * inspiration by https://github.com/mzabriskie/react-draggable
@@ -1176,7 +1404,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _eagleUiLibUtilsComponent2 = _interopRequireDefault(_eagleUiLibUtilsComponent);
 
-	var _eagleUiLibUtilsDom = __webpack_require__(10);
+	var _eagleUiLibUtilsDom = __webpack_require__(11);
 
 	var _eagleUiLibUtilsDom2 = _interopRequireDefault(_eagleUiLibUtilsDom);
 
@@ -1386,7 +1614,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return {
 	            'WebkitTransform': value,
 	            'MozTransform': value,
-	            'MsTransform': value,
+	            'msTransform': value,
 	            'OTransform': value,
 	            'transform': value
 	        };
@@ -1452,9 +1680,99 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports['default'] = Draggable;
 	module.exports = exports['default'];
 
-/***/ },
+/***/ }),
+/* 11 */
+/***/ (function(module, exports) {
+
+	'use strict';
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+	var Dom = (function () {
+	    function Dom(obj) {
+	        _classCallCheck(this, Dom);
+
+	        this.obj = obj;
+	    }
+
+	    Dom.prototype.offset = function offset() {
+
+	        var element = this.obj;
+	        var w = element.offsetLeft;
+	        var t = element.offsetTop;
+	        var node = element.offsetParent;
+
+	        while (node && node.nodeName.toLowerCase() != document.body) {
+	            t += node.offsetTop;
+	            w += node.offsetLeft;
+	            node = node.offsetParent;
+	        }
+
+	        return {
+	            top: t,
+	            left: w,
+	            width: element.offsetWidth,
+	            height: element.offsetHeight
+	        };
+	    };
+
+	    Dom.prototype.parents = function parents(str) {
+	        try {
+	            var tempNode = this.obj.parentNode;
+	            while (tempNode && tempNode.tagName != arguments[0].toUpperCase()) {
+	                tempNode = tempNode.parentNode;
+	            }
+	            return [tempNode];
+	        } catch (err) {
+	            return [];
+	        }
+	    };
+
+	    Dom.prototype.matchNode = function matchNode(element, direction, start) {
+	        for (var node = element[start]; node; node = node[direction]) {
+	            if (node.nodeType == 1) return node;
+	        }
+	        return null;
+	    };
+
+	    Dom.prototype.next = function next() {
+	        return this.matchNode(this.obj, 'nextSibling', 'nextSibling');
+	    };
+
+	    Dom.prototype.prev = function prev() {
+	        return this.matchNode(this.obj, 'previousSibling', 'previousSibling');
+	    };
+
+	    Dom.prototype.first = function first() {
+	        return this.matchNode(this.obj, 'nextSibling', 'firstChild');
+	    };
+
+	    Dom.prototype.last = function last() {
+	        return this.matchNode(this.obj, 'previousSibling', 'lastChild');
+	    };
+
+	    Dom.prototype.parent = function parent() {
+	        return this.matchNode(this.obj, 'parentNode', 'parentNode');
+	    };
+
+	    Dom.prototype.children = function children() {
+	        var element = this.obj;
+	        for (var children = [], tmpEl = element.firstChild; tmpEl; tmpEl = tmpEl.nextSibling) {
+	            if (tmpEl.nodeType == 1) children.push(tmpEl);
+	        }
+	        return children;
+	    };
+
+	    return Dom;
+	})();
+
+	module.exports = function (obj) {
+	    return new Dom(obj);
+	};
+
+/***/ }),
 /* 12 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	/**
 	 * Created by genffy on 16/7/19.
@@ -1473,6 +1791,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.getTouch = getTouch;
 	exports.getTouchIdentifier = getTouchIdentifier;
 	exports.isNum = isNum;
+	exports.isArray = isArray;
+	exports.toArray = toArray;
+	exports.isValidNum = isValidNum;
 
 	function outerHeight(node) {
 	    // This is deliberately excluding margin for our calculations, since we are using
@@ -1559,9 +1880,23 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return typeof num === 'number' && !isNaN(num);
 	}
 
-/***/ },
+	function isArray(obj) {
+	    return obj instanceof Array;
+	}
+
+	function toArray(obj) {
+	    var arr = [];
+	    arr.push(obj);
+	    return arr;
+	}
+
+	function isValidNum(index, min, max) {
+	    return index >= min ? index <= max ? true : false : false;
+	}
+
+/***/ }),
 /* 13 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
@@ -1575,8 +1910,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	if(false) {
 		// When the styles change, update the <style> tags
 		if(!content.locals) {
-			module.hot.accept("!!./../../css-loader/index.js!./../../less-loader/index.js!./imageview.less", function() {
-				var newContent = require("!!./../../css-loader/index.js!./../../less-loader/index.js!./imageview.less");
+			module.hot.accept("!!../../css-loader/index.js!../../less-loader/index.js!./imageview.less", function() {
+				var newContent = require("!!../../css-loader/index.js!../../less-loader/index.js!./imageview.less");
 				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
 				update(newContent);
 			});
@@ -1585,23 +1920,23 @@ return /******/ (function(modules) { // webpackBootstrap
 		module.hot.dispose(function() { update(); });
 	}
 
-/***/ },
+/***/ }),
 /* 14 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	exports = module.exports = __webpack_require__(15)();
 	// imports
 
 
 	// module
-	exports.push([module.id, ".upload-icon {\n  fill: #fff;\n  margin: 0 5px;\n  cursor: pointer;\n}\n.icon-box {\n  position: absolute;\n  bottom: 20px;\n  background: rgba(0, 0, 0, 0.7);\n  padding: 5px 10px;\n}\n.img-wrap {\n  position: relative;\n}\n.img-wrap.img-wrap-hidden {\n  overflow: hidden;\n}\n.img-wrap.img-wrap-show {\n  overflow: visible;\n}\n.img-wrap .draggable {\n  cursor: move;\n}\n.img-wrap .img-inner {\n  width: 100%;\n  height: 100%;\n}\n.img-wrap img {\n  -moz-user-select: none;\n  -webkit-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n}\n", ""]);
+	exports.push([module.id, ".imgview-dialog .upload-icon {\n  fill: #fff;\n  margin: 0 5px;\n  cursor: pointer;\n  color: #ffffff;\n}\n.imgview-dialog .icon-box {\n  position: absolute;\n  bottom: 20px;\n  visibility: hidden;\n  opacity: 0;\n  background: rgba(0, 0, 0, 0.7);\n  padding: 5px 10px;\n  transition: all 1s ease-in-out 0s;\n}\n.imgview-dialog .icon-side {\n  position: absolute;\n  top: 50%;\n  visibility: hidden;\n  opacity: 0;\n  background: rgba(0, 0, 0, 0.7);\n  padding: 5px 5px;\n  transition: all 1s ease-in-out 0s;\n}\n.imgview-dialog .img-hover:hover .icon-side,\n.imgview-dialog .img-hover:hover .icon-box {\n  visibility: visible;\n  opacity: 1;\n}\n.imgview-dialog .over-hidden {\n  overflow: hidden;\n}\n.imgview-dialog .hide {\n  display: none;\n}\n.imgview-dialog .left-15 {\n  left: 15px;\n}\n.imgview-dialog .right-15 {\n  right: 15px;\n}\n.imgview-dialog .tip-num {\n  display: inline-block;\n  margin-left: 15px;\n  font-size: 16px;\n}\n.imgview-dialog .tip-num .red-txt {\n  color: red;\n}\n.imgview-dialog .tip-num .mar-5 {\n  color: white;\n  margin: 0 5px;\n}\n.imgview-dialog .tip-num .white-txt {\n  color: white;\n}\n.imgview-dialog .img-wrap {\n  position: relative;\n}\n.imgview-dialog .img-wrap.img-wrap-hidden {\n  overflow: hidden;\n}\n.imgview-dialog .img-wrap.img-wrap-show {\n  overflow: visible;\n}\n.imgview-dialog .img-wrap .draggable {\n  cursor: move;\n}\n.imgview-dialog .img-wrap .img-inner {\n  width: 100%;\n  height: 100%;\n}\n.imgview-dialog .img-wrap img {\n  position: relative;\n  -moz-user-select: none;\n  -webkit-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n}\n/*.arrow-warp{\n  position: relative;\n  width: 20px;\n  height: 20px;\n  background: transparent;\n  display: inline-block;\n  cursor:pointer;\n}\n.arrow {\n  width: 100%;\n  height: 100%;\n  position: relative;\n  overflow: hidden;\n  display: inline-block;\n  &:after {\n    content: \"\";\n    display: block;\n    position: absolute;\n    top: 9px;\n    left: -27px;\n    width: 40px;\n    height: 40px;\n    border: 1px solid #fff;\n    border-radius: 22%;\n  }\n\n}\n.inner {\n  display: block;\n  position: absolute;\n  top: 5px;\n  left: -6px;\n  width: 0px;\n  height: 0px;\n  border: 5px solid;\n  z-index: 999;\n  border-color: transparent #fff transparent transparent;\n}\n.arrow-right{\n  .arrow:after{\n    left: 7px;\n  }\n  .inner{\n    left: 17px;\n    border-color: transparent transparent transparent #fff;\n  }\n}\n\n*/\n", ""]);
 
 	// exports
 
 
-/***/ },
+/***/ }),
 /* 15 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	/*
 		MIT License http://www.opensource.org/licenses/mit-license.php
@@ -1655,9 +1990,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 
-/***/ },
+/***/ }),
 /* 16 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	/*
 		MIT License http://www.opensource.org/licenses/mit-license.php
@@ -1880,9 +2215,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 
 
-/***/ },
+/***/ }),
 /* 17 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
@@ -1896,8 +2231,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	if(false) {
 		// When the styles change, update the <style> tags
 		if(!content.locals) {
-			module.hot.accept("!!./../node_modules/css-loader/index.js!./../node_modules/less-loader/index.js!./upload.less", function() {
-				var newContent = require("!!./../node_modules/css-loader/index.js!./../node_modules/less-loader/index.js!./upload.less");
+			module.hot.accept("!!../node_modules/css-loader/index.js!../node_modules/less-loader/index.js!./upload.less", function() {
+				var newContent = require("!!../node_modules/css-loader/index.js!../node_modules/less-loader/index.js!./upload.less");
 				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
 				update(newContent);
 			});
@@ -1906,9 +2241,9 @@ return /******/ (function(modules) { // webpackBootstrap
 		module.hot.dispose(function() { update(); });
 	}
 
-/***/ },
+/***/ }),
 /* 18 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	exports = module.exports = __webpack_require__(15)();
 	// imports
@@ -1920,7 +2255,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	// exports
 
 
-/***/ }
+/***/ })
 /******/ ])
 });
 ;

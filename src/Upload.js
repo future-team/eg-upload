@@ -131,7 +131,11 @@ export default class Upload extends Component{
                 item = items[i];
                 if(item.kind == 'file' || item.type.indexOf('image') > -1) {
                     file = item.getAsFile();
-                    file.name=this.uniqueId();
+                    try{
+                        file.name=this.uniqueId();
+                    }catch(ex){
+                        console.warn('不支持更改可读属性name！');  
+                    }
                     files.push(file );
                 }
             }
@@ -276,7 +280,7 @@ export default class Upload extends Component{
                     xhr.open("POST", _this.props.uploadUrl, true);
                     xhr.setRequestHeader('X_FILENAME', encodeURIComponent(file.name));
                     let f = new FormData();
-                    f.append(file.name, file);
+                    f.append(file.name || '', file);
                     xhr.send(f);
                 }
             })(file);
