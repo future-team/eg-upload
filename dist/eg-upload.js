@@ -248,7 +248,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            //getAsString
 	            var items = e.clipboardData.items,
 	                item = null,
-	                file = null;
+	                _file = null;
 
 	            /*items[0].getAsString(function(str){
 	            } );*/
@@ -256,13 +256,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	            for (var i = 0, len = items.length; i < len; i++) {
 	                item = items[i];
 	                if (item.kind == 'file' || item.type.indexOf('image') > -1) {
-	                    file = item.getAsFile();
+	                    _file = item.getAsFile();
 	                    try {
-	                        file.name = this.uniqueId();
+	                        _file.name = this.uniqueId();
 	                    } catch (ex) {
+	                        _file._name = this.uniqueId();
 	                        console.warn('不支持更改可读属性name！');
 	                    }
-	                    files.push(file);
+	                    files.push(_file);
 	                }
 	            }
 	        }
@@ -295,6 +296,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }
 
 	        var map = this.props.filter(files, this.props.maxSize);
+
+	        for (var i = 0; i < map.length; i++) {
+	            if (!map[i]._name) {
+	                map[i]._name = file.name;
+	            }
+	        }
 
 	        if (map && map.length && map.length > 0) {
 	            this.fileList = this.fileList.concat(map);
@@ -342,7 +349,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    Upload.prototype.rollback = function rollback(file, xhr) {
 	        var _this = this;
 	        _this.fileList = _this.fileList.forEach(function (item) {
-	            return item.name != file.name;
+	            return item._name != file._name;
 	        });
 	        if (typeof (this.fileList == 'undefined')) {
 	            this.fileList = [];
@@ -372,7 +379,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            success = 0;
 
 	        _this.props.uploadedCallback(this.fileList, fileList);
-	        for (var i = 0, file = null; file = fileList[i]; i++) {
+	        for (var i = 0, _file2 = null; _file2 = fileList[i]; i++) {
 
 	            (function (file) {
 	                var xhr = new XMLHttpRequest();
@@ -391,7 +398,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                                if (typeof isUpload == 'boolean' && !isUpload) {
 	                                    _this.rollback(file, xhr);
 	                                } else {
-	                                    _this.data[file.name] = JSON.parse(xhr.responseText || '{}');
+	                                    _this.data[file._name || file.name] = JSON.parse(xhr.responseText || '{}');
 	                                }
 
 	                                success += 1;
@@ -407,12 +414,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    };
 
 	                    xhr.open("POST", _this.props.uploadUrl, true);
-	                    xhr.setRequestHeader('X_FILENAME', encodeURIComponent(file.name));
+	                    xhr.setRequestHeader('X_FILENAME', encodeURIComponent(file._name));
 	                    var f = new FormData();
-	                    f.append(file.name || '', file);
+	                    f.append(file._name || '', file);
 	                    xhr.send(f);
 	                }
-	            })(file);
+	            })(_file2);
 	        }
 	    };
 
@@ -428,9 +435,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	    Upload.prototype.remove = function remove(index) {
 	        var _this = this;
 	        this.fileList = this.fileList.filter(function (item) {
-	            if (_this.data[item.name] && item.index == index) {
-	                _this.data[item.name] = null;
-	                delete _this.data[item.name];
+	            if (_this.data[item._name] && item.index == index) {
+	                _this.data[item._name] = null;
+	                delete _this.data[item._name];
 	            }
 	            return item.index != index;
 	        });
@@ -454,7 +461,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    Upload.prototype.showPic = function showPic(file) {
 	        this.setState({
 	            showFile: {
-	                name: file.name,
+	                name: file._name,
 	                url: file.result
 	            }
 	        });
@@ -481,7 +488,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                            width: _this3.props.thumbWidth,
 	                            height: _this3.props.thumbHeight
 	                        } },
-	                    _react2['default'].createElement('img', { src: file.result, alt: file.name, title: file.name, onClick: (_context = _this.showPic).bind.call(_context, _this, file),
+	                    _react2['default'].createElement('img', { src: file.result, alt: file._name, title: file._name, onClick: (_context = _this.showPic).bind.call(_context, _this, file),
 	                        style: {
 	                            width: _this3.props.thumbWidth,
 	                            height: _this3.props.thumbHeight
@@ -491,8 +498,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	                        'div',
 	                        { className: 'text', style: {
 	                                width: _this3.props.thumbWidth
-	                            }, title: file.name },
-	                        file.name
+	                            }, title: file._name },
+	                        file._name
 	                    )
 	                ) : _react2['default'].createElement(
 	                    'div',
@@ -500,8 +507,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	                            width: _this3.props.thumbWidth,
 	                            height: _this3.props.thumbHeight,
 	                            lineHeight: _this3.props.thumbHeight
-	                        }, title: file.name },
-	                    file.name
+	                        }, title: file._name },
+	                    file._name
 	                ),
 	                _react2['default'].createElement(
 	                    'div',
@@ -545,6 +552,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                        items.push({
 	                            index: file.index,
 	                            name: file.name || _this.uniqueId(),
+	                            _name: file._name || _this.uniqueId(),
 	                            result: e.target.result,
 	                            type: file.type
 	                        });
@@ -556,6 +564,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    items.push({
 	                        index: file.index,
 	                        name: file.name || _this.uniqueId(),
+	                        _name: file._name || _this.uniqueId(),
 	                        result: '',
 	                        type: file.type
 	                    });

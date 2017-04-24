@@ -134,6 +134,7 @@ export default class Upload extends Component{
                     try{
                         file.name=this.uniqueId();
                     }catch(ex){
+                        file._name=this.uniqueId();
                         console.warn('不支持更改可读属性name！');  
                     }
                     files.push(file );
@@ -170,9 +171,15 @@ export default class Upload extends Component{
 
         let map = this.props.filter(files,this.props.maxSize);
 
+        for(var i=0;i<map.length;i++){
+            if(!map[i]._name){
+                map[i]._name=file.name;
+            }
+        }
+
         if(map && map.length && map.length >0){
             this.fileList=this.fileList.concat(map );
-
+            
             this.uploadFiles = map;
             this.dealFiles();
         }
@@ -216,7 +223,7 @@ export default class Upload extends Component{
     rollback(file,xhr){
         let _this = this;
         _this.fileList = _this.fileList.forEach((item)=>{
-            return item.name !=file.name;
+            return item._name !=file._name;
         });
         if(typeof(this.fileList =='undefined') ){
             this.fileList = [];
@@ -262,7 +269,7 @@ export default class Upload extends Component{
                                 if(typeof(isUpload)=='boolean'&& !isUpload){
                                     _this.rollback(file,xhr);
                                 }else{
-                                    _this.data[file.name] = JSON.parse(xhr.responseText ||'{}');
+                                    _this.data[file._name || file.name] = JSON.parse(xhr.responseText ||'{}');
                                 }
 
                                 success+=1;
@@ -278,9 +285,9 @@ export default class Upload extends Component{
                     };
 
                     xhr.open("POST", _this.props.uploadUrl, true);
-                    xhr.setRequestHeader('X_FILENAME', encodeURIComponent(file.name));
+                    xhr.setRequestHeader('X_FILENAME', encodeURIComponent(file._name));
                     let f = new FormData();
-                    f.append(file.name || '', file);
+                    f.append(file._name || '', file);
                     xhr.send(f);
                 }
             })(file);
@@ -300,9 +307,9 @@ export default class Upload extends Component{
     remove(index){
         let _this = this;
         this.fileList = this.fileList.filter(function(item){
-            if(_this.data[item.name] && item.index==index){
-                _this.data[item.name] = null;
-                delete _this.data[item.name];
+            if(_this.data[item._name] && item.index==index){
+                _this.data[item._name] = null;
+                delete _this.data[item._name];
             }
             return item.index!=index;
         });
@@ -326,7 +333,7 @@ export default class Upload extends Component{
     showPic(file){
         this.setState({
             showFile:{
-                name:file.name,
+                name:file._name,
                 url:file.result
             }
         });
@@ -347,7 +354,7 @@ export default class Upload extends Component{
                                         width:this.props.thumbWidth,
                                         height:this.props.thumbHeight
                                     }}>
-                                <img src={file.result} alt={file.name} title={file.name} onClick={::_this.showPic.bind(_this,file)}
+                                <img src={file.result} alt={file._name} title={file._name} onClick={::_this.showPic.bind(_this,file)}
                                      style={{
                                         width:this.props.thumbWidth,
                                         height:this.props.thumbHeight
@@ -355,13 +362,13 @@ export default class Upload extends Component{
                                     />
                                 <div className="text" style={{
                                     width:this.props.thumbWidth
-                                }} title={file.name}>{file.name}</div>
+                                }} title={file._name}>{file._name}</div>
                             </div>):
                             <div className="text"  style={{
                                         width:this.props.thumbWidth,
                                         height:this.props.thumbHeight,
                                         lineHeight:this.props.thumbHeight
-                                    }} title={file.name}>{file.name}</div>
+                                    }} title={file._name}>{file._name}</div>
                     }
                     <div className={
                         classnames('progress',{
@@ -394,6 +401,7 @@ export default class Upload extends Component{
                             {
                                 index:file.index,
                                 name:file.name||_this.uniqueId(),
+                                _name:file._name||_this.uniqueId(),
                                 result:e.target.result,
                                 type:file.type
                             }
@@ -408,6 +416,7 @@ export default class Upload extends Component{
                         {
                             index:file.index,
                             name:file.name||_this.uniqueId(),
+                            _name:file._name||_this.uniqueId(),
                             result:'',
                             type:file.type
                         }
