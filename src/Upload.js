@@ -173,7 +173,7 @@ export default class Upload extends Component{
 
         for(var i=0;i<map.length;i++){
             if(!map[i]._name){
-                map[i]._name=file.name;
+                map[i]._name=map[i].name;
             }
         }
 

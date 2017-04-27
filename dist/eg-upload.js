@@ -248,7 +248,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            //getAsString
 	            var items = e.clipboardData.items,
 	                item = null,
-	                _file = null;
+	                file = null;
 
 	            /*items[0].getAsString(function(str){
 	            } );*/
@@ -256,14 +256,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	            for (var i = 0, len = items.length; i < len; i++) {
 	                item = items[i];
 	                if (item.kind == 'file' || item.type.indexOf('image') > -1) {
-	                    _file = item.getAsFile();
+	                    file = item.getAsFile();
 	                    try {
-	                        _file.name = this.uniqueId();
+	                        file.name = this.uniqueId();
 	                    } catch (ex) {
-	                        _file._name = this.uniqueId();
+	                        file._name = this.uniqueId();
 	                        console.warn('不支持更改可读属性name！');
 	                    }
-	                    files.push(_file);
+	                    files.push(file);
 	                }
 	            }
 	        }
@@ -299,7 +299,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	        for (var i = 0; i < map.length; i++) {
 	            if (!map[i]._name) {
-	                map[i]._name = file.name;
+	                map[i]._name = map[i].name;
 	            }
 	        }
 
@@ -379,7 +379,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            success = 0;
 
 	        _this.props.uploadedCallback(this.fileList, fileList);
-	        for (var i = 0, _file2 = null; _file2 = fileList[i]; i++) {
+	        for (var i = 0, file = null; file = fileList[i]; i++) {
 
 	            (function (file) {
 	                var xhr = new XMLHttpRequest();
@@ -419,7 +419,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    f.append(file._name || '', file);
 	                    xhr.send(f);
 	                }
-	            })(_file2);
+	            })(file);
 	        }
 	    };
 
