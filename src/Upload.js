@@ -41,9 +41,7 @@ export default class Upload extends Component{
         uploadUrl:PropTypes.string,
         //允许上传文件大小
         maxSize:PropTypes.number,
-        hideImgViewWhenEmpty:PropTypes.bool,
-        // 初始化文件显示
-        files: PropTypes.array
+        hideImgViewWhenEmpty:PropTypes.bool
     };
 
     static defaultProps = {
@@ -65,7 +63,6 @@ export default class Upload extends Component{
         uploadedCallback:()=>{},
         successCallback:()=>{return true},
         renderItemCallback:null,
-        files: [],
         filter:(files,maxSize)=>{
             var arrFiles = [];
             for (var i = 0, file; file = files[i]; i++) {
@@ -105,7 +102,7 @@ export default class Upload extends Component{
 
         this.imageFilter = /^(image\/bmp|image\/gif|image\/jpeg|image\/png|image\/tiff)$/i;
         this.state={
-            baseList: this.props.files,
+            baseList: [],
             isDrag:false,
             progress:[],
             showFile:{
@@ -397,7 +394,7 @@ export default class Upload extends Component{
             file= files[i];
             if(file){
                 _this.isRender = false;
-                if(_this.imageFilter.test(file.type) ){
+                if(_this.imageFilter.test(file.type) && !files._init){
                     var reader = new FileReader();
                     reader.onload = function(e) {
                         items.push(
@@ -420,7 +417,7 @@ export default class Upload extends Component{
                             index:file.index,
                             name:file.name||_this.uniqueId(),
                             _name:file._name||_this.uniqueId(),
-                            result:'',
+                            result: file.result | '',
                             type:file.type
                         }
                     );
