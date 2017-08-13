@@ -41,7 +41,9 @@ export default class Upload extends Component{
         uploadUrl:PropTypes.string,
         //允许上传文件大小
         maxSize:PropTypes.number,
-        hideImgViewWhenEmpty:PropTypes.bool
+        hideImgViewWhenEmpty:PropTypes.bool,
+        // 初始化文件显示
+        files: PropTypes.array
     };
 
     static defaultProps = {
@@ -63,6 +65,7 @@ export default class Upload extends Component{
         uploadedCallback:()=>{},
         successCallback:()=>{return true},
         renderItemCallback:null,
+        files: [],
         filter:(files,maxSize)=>{
             var arrFiles = [];
             for (var i = 0, file; file = files[i]; i++) {
@@ -102,7 +105,7 @@ export default class Upload extends Component{
 
         this.imageFilter = /^(image\/bmp|image\/gif|image\/jpeg|image\/png|image\/tiff)$/i;
         this.state={
-            baseList:[],
+            baseList: this.props.files,
             isDrag:false,
             progress:[],
             showFile:{
@@ -372,7 +375,7 @@ export default class Upload extends Component{
                     }
                     <div className={
                         classnames('progress',{
-                            hide:progress ? progress.match(/\d*/)*1>=100:false
+                            hide:progress == undefined ? ture : (progress ? progress.match(/\d*/)*1>=100:false)
                         })
                     }><b style={{
                                 width:progress
