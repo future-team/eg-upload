@@ -372,7 +372,7 @@ export default class Upload extends Component{
                     }
                     <div className={
                         classnames('progress',{
-                            hide:progress == undefined ? ture : (progress ? progress.match(/\d*/)*1>=100:false)
+                            hide: typeof progress == 'undefined' ? true : (progress ? progress.match(/\d*/)*1>=100:false)
                         })
                     }><b style={{
                                 width:progress
