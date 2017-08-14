@@ -417,7 +417,7 @@ export default class Upload extends Component{
                             index:file.index,
                             name:file.name||_this.uniqueId(),
                             _name:file._name||_this.uniqueId(),
-                            result: file.result | '',
+                            result: file.result || '',
                             type:file.type
                         }
                     );
