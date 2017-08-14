@@ -102,7 +102,7 @@ export default class Upload extends Component{
 
         this.imageFilter = /^(image\/bmp|image\/gif|image\/jpeg|image\/png|image\/tiff)$/i;
         this.state={
-            baseList: [],
+            baseList:[],
             isDrag:false,
             progress:[],
             showFile:{
@@ -394,7 +394,7 @@ export default class Upload extends Component{
             file= files[i];
             if(file){
                 _this.isRender = false;
-                if(_this.imageFilter.test(file.type) && !files._init){
+                if(_this.imageFilter.test(file.type) && !file._init){
                     var reader = new FileReader();
                     reader.onload = function(e) {
                         items.push(
