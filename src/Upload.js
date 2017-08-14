@@ -372,7 +372,7 @@ export default class Upload extends Component{
                     }
                     <div className={
                         classnames('progress',{
-                            hide:progress ? progress.match(/\d*/)*1>=100:false
+                            hide: typeof progress == 'undefined' ? true : (progress ? progress.match(/\d*/)*1>=100:false)
                         })
                     }><b style={{
                                 width:progress
@@ -394,7 +394,7 @@ export default class Upload extends Component{
             file= files[i];
             if(file){
                 _this.isRender = false;
-                if(_this.imageFilter.test(file.type) ){
+                if(_this.imageFilter.test(file.type) && !file._init){
                     var reader = new FileReader();
                     reader.onload = function(e) {
                         items.push(
@@ -417,7 +417,7 @@ export default class Upload extends Component{
                             index:file.index,
                             name:file.name||_this.uniqueId(),
                             _name:file._name||_this.uniqueId(),
-                            result:'',
+                            result: file.result || '',
                             type:file.type
                         }
                     );
