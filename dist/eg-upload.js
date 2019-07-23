@@ -418,6 +418,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                }
 	            })(file);
 	        }
+	        _this.fileUpload.value = '';
 	    };
 
 	    Upload.prototype.closeStatus = function closeStatus(val, e) {
@@ -593,6 +594,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	    };
 
 	    Upload.prototype.render = function render() {
+	        var _this4 = this;
+
 	        return _react2['default'].createElement(
 	            'div',
 	            _extends({}, this.otherProps, { className: _classnames2['default'](this.getProperty(), this.props.className) }),
@@ -603,7 +606,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    _eagleUi.Button,
 	                    { egSize: this.props.egSize, egStyle: this.props.egStyle },
 	                    this.props.uploadBtnText,
-	                    _react2['default'].createElement('input', { type: 'file', onChange: this.getFiles.bind(this), multiple: true })
+	                    _react2['default'].createElement('input', { ref: function (fileUpload) {
+	                            return _this4.fileUpload = fileUpload;
+	                        }, type: 'file', onChange: this.getFiles.bind(this), multiple: true })
 	                )
 	            ),
 	            _react2['default'].createElement(
