@@ -351,9 +351,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	        _this.fileList = _this.fileList.filter(function (item) {
 	            return item._name != file._name;
 	        });
-	        if (typeof (this.fileList == 'undefined')) {
-	            this.fileList = [];
-	        }
 
 	        this.target && (this.target.value = '');
 
