@@ -225,9 +225,6 @@ export default class Upload extends Component{
         _this.fileList = _this.fileList.filter((item)=>{
             return item._name !=file._name;
         });
-        if(typeof(this.fileList =='undefined') ){
-            this.fileList = [];
-        }
 
         this.target && (this.target.value='');
 
