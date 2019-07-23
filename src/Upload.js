@@ -222,7 +222,7 @@ export default class Upload extends Component{
 
     rollback(file,xhr){
         let _this = this;
-        _this.fileList = _this.fileList.forEach((item)=>{
+        _this.fileList = _this.fileList.filter((item)=>{
             return item._name !=file._name;
         });
         if(typeof(this.fileList =='undefined') ){
