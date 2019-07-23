@@ -289,6 +289,7 @@ export default class Upload extends Component{
                 }
             })(file);
         }
+        _this.fileUpload.value = ''
     }
 
     closeStatus(val,e){
@@ -454,7 +455,7 @@ export default class Upload extends Component{
                 }>
                 <div>
                     <Button egSize={this.props.egSize} egStyle={this.props.egStyle}>{this.props.uploadBtnText}
-                        <input type="file" onChange={::this.getFiles} multiple />
+                        <input ref={(fileUpload)=>this.fileUpload=fileUpload} type="file" onChange={::this.getFiles} multiple />
                     </Button>
 
                 </div>
