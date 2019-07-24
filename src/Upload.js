@@ -93,7 +93,7 @@ export default class Upload extends Component{
         //this.imgId = this.uniqueId();
 
         //此数据返回给调用者
-        this.data = {};
+        this.data = [];
 
         this.isRender = true;
         this.timeout = null;
@@ -266,7 +266,7 @@ export default class Upload extends Component{
                                 if(typeof(isUpload)=='boolean'&& !isUpload){
                                     _this.rollback(file,xhr);
                                 }else{
-                                    _this.data[file._name || file.name] = JSON.parse(xhr.responseText ||'{}');
+                                    _this.data.push(JSON.parse(xhr.responseText ||'{}'));
                                 }
 
                                 success+=1;
@@ -304,11 +304,13 @@ export default class Upload extends Component{
 
     remove(index){
         let _this = this;
-        this.fileList = this.fileList.filter(function(item){
-            if(_this.data[item._name] && item.index==index){
-                _this.data[item._name] = null;
-                delete _this.data[item._name];
-            }
+        this.fileList = this.fileList.filter(
+            function(item){
+                _this.data = _this.data.filter(ele=> {return!(ele._name==item._name && item.index==index)})
+            // if(_this.data[item._name] && item.index==index){
+            //     _this.data[item._name] = null;
+            //     delete _this.data[item._name];
+            // }
             return item.index!=index;
         });
 
